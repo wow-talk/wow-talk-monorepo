@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':wowtalk-transport')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

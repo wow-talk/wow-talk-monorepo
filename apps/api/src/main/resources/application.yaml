@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    default: local
+  application:
+    name: wow-talk
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

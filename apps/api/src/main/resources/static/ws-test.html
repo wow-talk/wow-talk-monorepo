@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wow-talk WebSocket Test</title>
+    <style>
+        :root {
+            --bg: #f6f2ea;
+            --panel: #fffdf8;
+            --line: #d9cfbf;
+            --text: #2f2419;
+            --muted: #766858;
+            --accent: #0f766e;
+            --accent-strong: #115e59;
+            --danger: #b91c1c;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Pretendard", "Noto Sans KR", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 28%),
+                linear-gradient(180deg, #f8f4ed 0%, #efe6d7 100%);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: rgba(255, 253, 248, 0.88);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 16px 40px rgba(47, 36, 25, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font: inherit;
+            background: #fff;
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 16px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        button:hover { transform: translateY(-1px); }
+        button.primary { background: var(--accent); color: white; }
+        button.secondary { background: #ece3d6; color: var(--text); }
+        button.danger { background: var(--danger); color: white; }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #efe7da;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #b45309;
+        }
+
+        .status.connected::before { background: var(--accent); }
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 420px;
+            max-height: 560px;
+            overflow: auto;
+        }
+
+        .message {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+
+        .message .meta {
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .message.system {
+            background: #f1faf8;
+            border-color: rgba(15, 118, 110, 0.18);
+        }
+
+        @media (max-width: 860px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <h1>wow-talk WebSocket 테스트</h1>
+        <p>브라우저에서 바로 WebSocket 연결과 방 단위 브로드캐스트를 확인할 수 있는 테스트 페이지입니다.</p>
+    </section>
+
+    <div class="grid">
+        <section class="panel">
+            <div class="field">
+                <label for="serverUrl">서버 주소</label>
+                <input id="serverUrl" value="ws://localhost:8080/ws/chat">
+            </div>
+            <div class="field">
+                <label for="roomId">roomId</label>
+                <input id="roomId" value="room-1">
+            </div>
+            <div class="field">
+                <label for="sessionId">sessionId</label>
+                <input id="sessionId" value="user-1">
+            </div>
+            <div class="status" id="status">연결 안 됨</div>
+            <div class="actions">
+                <button class="primary" id="connectButton">연결</button>
+                <button class="danger" id="disconnectButton">종료</button>
+            </div>
+
+            <div class="field" style="margin-top: 18px;">
+                <label for="message">메시지 JSON</label>
+                <textarea id="message" placeholder="보낼 메시지를 입력하세요.">{
+  "type": "SEND_MESSAGE",
+  "payload": "안녕하세요"
+}</textarea>
+            </div>
+            <div class="actions">
+                <button class="secondary" id="sendButton">전송</button>
+                <button class="secondary" id="clearButton">로그 지우기</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="messages" id="messages"></div>
+        </section>
+    </div>
+</div>
+
+<script>
+    const statusEl = document.getElementById("status");
+    const messagesEl = document.getElementById("messages");
+    const serverUrlEl = document.getElementById("serverUrl");
+    const roomIdEl = document.getElementById("roomId");
+    const sessionIdEl = document.getElementById("sessionId");
+    const messageEl = document.getElementById("message");
+
+    let socket = null;
+
+    function appendMessage(meta, body, type = "") {
+        const item = document.createElement("article");
+        item.className = `message ${type}`.trim();
+        item.innerHTML = `<div class="meta">${meta}</div><div>${body}</div>`;
+        messagesEl.appendChild(item);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setStatus(connected, text) {
+        statusEl.textContent = text;
+        statusEl.className = connected ? "status connected" : "status";
+    }
+
+    document.getElementById("connectButton").addEventListener("click", () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            appendMessage("SYSTEM", "이미 연결되어 있습니다.", "system");
+            return;
+        }
+
+        const endpoint = `${serverUrlEl.value}?roomId=${encodeURIComponent(roomIdEl.value)}&sessionId=${encodeURIComponent(sessionIdEl.value)}`;
+        socket = new WebSocket(endpoint);
+
+        socket.onopen = () => {
+            setStatus(true, "연결됨");
+            appendMessage("SYSTEM", `연결 성공: ${endpoint}`, "system");
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const parsed = JSON.parse(event.data);
+                appendMessage("RECEIVED", `<pre>${JSON.stringify(parsed, null, 2)}</pre>`);
+            } catch {
+                appendMessage("RECEIVED", event.data);
+            }
+        };
+
+        socket.onerror = () => {
+            appendMessage("SYSTEM", "WebSocket 오류가 발생했습니다.", "system");
+        };
+
+        socket.onclose = () => {
+            setStatus(false, "연결 안 됨");
+            appendMessage("SYSTEM", "연결이 종료되었습니다.", "system");
+        };
+    });
+
+    document.getElementById("disconnectButton").addEventListener("click", () => {
+        if (socket) {
+            socket.close();
+        }
+    });
+
+    document.getElementById("sendButton").addEventListener("click", () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            appendMessage("SYSTEM", "먼저 연결해야 합니다.", "system");
+            return;
+        }
+
+        socket.send(messageEl.value);
+        appendMessage("SENT", `<pre>${messageEl.value}</pre>`);
+        messageEl.focus();
+    });
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+        messagesEl.innerHTML = "";
+    });
+</script>
+</body>
+</html>

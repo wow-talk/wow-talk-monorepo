@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: wowtalk-postgres
+    environment:
+      POSTGRES_DB: wowtalk
+      POSTGRES_USER: wowtalk
+      POSTGRES_PASSWORD: wowtalk
+    ports:
+      - "5432:5432"
+    volumes:
+      - wowtalk-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  wowtalk-postgres-data:

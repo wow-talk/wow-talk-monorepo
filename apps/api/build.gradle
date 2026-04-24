@@ -1,0 +1,17 @@
+plugins {
+    id 'org.springframework.boot' version '4.0.6'
+}
+
+dependencies {
+    implementation project(':wowtalk-core')
+    implementation project(':wowtalk-transport')
+    implementation project(':wowtalk-rawtcp')
+    implementation project(':wowtalk-websocket')
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
