@@ -134,7 +134,7 @@ front-end/
   - 타입은 별도 `*.types.ts` **금지** — Zod 스키마와 같은 파일에 둔다(스키마와 타입 동기 보장).
 - **Export**:
   - 컴포넌트 포함 **`default export` 사용 금지**. 모든 export는 named.
-  - 예외: Next.js가 강제하는 `app/**/page.tsx`, `app/**/layout.tsx` 등 — 이때도 같은 파일에 named export 병행.
+  - 예외: Next.js 라우팅 파일(`app/**/{page,layout,error,not-found,loading,template,default}.tsx` 등) — **`default export` 단독 사용**. Next 16의 layout/page는 컴포넌트 named 병행을 거부(type error)하므로 시도 금지. 단 `metadata`, `generateStaticParams`, `generateMetadata`, `dynamic`, `revalidate` 등 **Next가 인식하는 named export**는 함께 둘 수 있다.
 - **Import 순서**: 외부 패키지 → `@/*` alias → 같은 폴더 상대.
 - **상대경로**: `../`까지만 허용. **`../../` 이상 금지** — alias로 교체.
 - **`any` 금지**: `unknown`으로 받고 타입 가드/Zod로 좁힌다. 제네릭이 필요하면 제네릭.
