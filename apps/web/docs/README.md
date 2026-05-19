@@ -27,3 +27,10 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 
 ### 00-project-setup
 - [00. 의존성 결정 (2026-05-20)](00-project-setup/00-dependency-decisions.md) — vanilla-extract / TanStack Query / Zustand / Zod / nanoid 5종 선택 근거
+
+### 10-nextjs
+- [02. next/font와 metadata (2026-05-20)](10-nextjs/02-fonts-and-metadata.md) — Cormorant Garamond + Inter + JetBrains Mono self-host, lang ko, metadata API
+
+### 50-styling
+- [00. vanilla-extract 인트로 (2026-05-20)](50-styling/00-vanilla-extract-intro.md) — createGlobalTheme / globalStyle / 빌드타임 추출 동작
+- [01. 디자인 토큰 매핑표 (2026-05-20)](50-styling/01-design-tokens-mapping.md) — DESIGN.md placeholder → vars 1:1 매핑
