@@ -174,21 +174,21 @@ pnpm db:down
 - `apps/web/tsconfig.json`
 - `apps/web/eslint.config.mjs`
 - `apps/web/.env.example`
-- `apps/web/pnpm-workspace.yaml`
-- `apps/web/pnpm-lock.yaml`
 
-즉, 프론트 자체 파일은 원본 레포에서 복사된 상태 그대로다.
+즉, 프론트 앱 코드와 Next/TypeScript/ESLint 설정은 원본 레포에서 복사된 상태 그대로다.
 
-프론트와 관련해서 새로 추가된 것은 모노레포 루트 설정과 Dockerfile뿐이다.
+프론트와 관련해서 새로 추가되거나 조정된 것은 모노레포 루트 설정과 Dockerfile 쪽이다.
 
 - `package.json`
 - `pnpm-workspace.yaml`
 - `pnpm-lock.yaml`
 - `docker/web.Dockerfile`
+- `apps/web/pnpm-workspace.yaml` 제거
+- `apps/web/pnpm-lock.yaml` 제거
 
-## 현재 남아있는 프론트 경고
+## 프론트 pnpm/Next 경고 해결
 
-프론트 빌드는 성공하지만, Next.js가 다음 경고를 띄운다.
+초기 전환 직후에는 프론트 빌드가 성공하더라도 Next.js가 다음 경고를 띄웠다.
 
 ```txt
 Next.js inferred your workspace root, but it may not be correct.
@@ -196,14 +196,11 @@ Detected additional lockfiles:
   apps/web/pnpm-workspace.yaml
 ```
 
-원인은 `apps/web/pnpm-workspace.yaml`이 프론트 원본에 존재하기 때문이다.
+원인은 프론트가 단독 레포였을 때의 `apps/web/pnpm-workspace.yaml`, `apps/web/pnpm-lock.yaml`이 모노레포 내부에 그대로 남아 있었기 때문이다.
 
-해결 방법은 두 가지다.
+모노레포에서는 루트 `pnpm-workspace.yaml`과 루트 `pnpm-lock.yaml`이 단일 기준이 되어야 하므로, 중복 파일을 제거했다.
 
-1. 프론트 담당자에게 확인 후 `apps/web/pnpm-workspace.yaml`을 제거하거나 루트로 흡수
-2. `apps/web/next.config.ts`에 `outputFileTracingRoot`를 명시
-
-이번 작업에서는 프론트 파일을 수정하지 않는 조건이었기 때문에 경고만 남겨두고 건드리지 않았다. 빌드는 정상 통과한다.
+이 변경은 프론트 런타임 코드 변경이 아니라 패키지 관리 파일 정리다.
 
 ## 검증 결과
 
@@ -252,6 +249,9 @@ NEXT_PUBLIC_WS_BASE=ws://localhost:8080
 ```
 
 백엔드는 기본 `local` profile로 실행되며, `compose.yaml`의 Postgres를 사용한다.
+
+로컬 프론트 연동을 위해 백엔드는 기본 CORS origin으로 `http://localhost:3000`을 허용한다.
+운영에서는 `WOWTALK_CORS_ALLOWED_ORIGINS` 환경변수로 실제 프론트 도메인을 주입한다.
 
 ## 새 레포로 올릴 때
 

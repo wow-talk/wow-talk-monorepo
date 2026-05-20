@@ -5,6 +5,7 @@ import io.wowtalk.channel.dto.ChannelTransportInfo;
 import io.wowtalk.channel.repository.ChannelRepository;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.TransportMode;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +21,7 @@ public class DefaultChannelService implements ChannelService {
     public void ensureChannel(RoomId roomId, TransportMode transportMode) {
         channelRepository.findByRoomId(roomId)
                 .ifPresentOrElse(channel -> validateTransportMode(channel, transportMode),
-                        () -> channelRepository.save(new Channel(roomId, transportMode)));
+                        () -> createChannel(roomId, transportMode));
     }
 
     @Override
@@ -34,6 +35,16 @@ public class DefaultChannelService implements ChannelService {
     private void validateTransportMode(Channel channel, TransportMode transportMode) {
         if (channel.transportMode() != transportMode) {
             throw new TransportModeMismatchException();
+        }
+    }
+
+    private void createChannel(RoomId roomId, TransportMode transportMode) {
+        try {
+            channelRepository.save(new Channel(roomId, transportMode));
+        } catch (DataIntegrityViolationException e) {
+            Channel existing = channelRepository.findByRoomId(roomId)
+                    .orElseThrow(() -> e);
+            validateTransportMode(existing, transportMode);
         }
     }
 }

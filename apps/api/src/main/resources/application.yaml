@@ -10,3 +10,7 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+wowtalk:
+  cors:
+    allowed-origins: ${WOWTALK_CORS_ALLOWED_ORIGINS:http://localhost:3000}
