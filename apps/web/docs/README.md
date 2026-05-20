@@ -35,6 +35,10 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 ### 30-typescript
 - [01. Zod 런타임 검증 패턴 (2026-05-20)](30-typescript/01-zod-patterns.md) — schema+타입 추론, safeParse vs parse, discriminatedUnion, apiFetch 패턴
 
+### 40-websocket
+- [00. WebSocket 라이프사이클 (2026-05-20)](40-websocket/00-ws-lifecycle.md) — readyState 4단계, 이벤트 4종, 정상/비정상 close, 재연결 정책
+- [03. StrictMode 더블 마운트와 WebSocket (2026-05-20)](40-websocket/03-strictmode-double-connect.md) — effect 더블 호출, useRef+dispose 패턴
+
 ### 50-styling
 - [00. vanilla-extract 인트로 (2026-05-20)](50-styling/00-vanilla-extract-intro.md) — createGlobalTheme / globalStyle / 빌드타임 추출 동작
 - [01. 디자인 토큰 매핑표 (2026-05-20)](50-styling/01-design-tokens-mapping.md) — DESIGN.md placeholder → vars 1:1 매핑
