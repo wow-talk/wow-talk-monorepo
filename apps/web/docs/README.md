@@ -32,6 +32,12 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 ### 10-nextjs
 - [02. next/font와 metadata (2026-05-20)](10-nextjs/02-fonts-and-metadata.md) — Cormorant Garamond + Inter + JetBrains Mono self-host, lang ko, metadata API
 
+### 30-typescript
+- [01. Zod 런타임 검증 패턴 (2026-05-20)](30-typescript/01-zod-patterns.md) — schema+타입 추론, safeParse vs parse, discriminatedUnion, apiFetch 패턴
+
 ### 50-styling
 - [00. vanilla-extract 인트로 (2026-05-20)](50-styling/00-vanilla-extract-intro.md) — createGlobalTheme / globalStyle / 빌드타임 추출 동작
 - [01. 디자인 토큰 매핑표 (2026-05-20)](50-styling/01-design-tokens-mapping.md) — DESIGN.md placeholder → vars 1:1 매핑
+
+### 60-state-data
+- [00. TanStack Query 기초 (2026-05-20)](60-state-data/00-tanstack-query-basics.md) — useQuery / useMutation / queryKey / staleTime / v5 isPending 변경점

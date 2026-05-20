@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 
+import { QueryProvider } from "@/providers/QueryProvider";
+
 import "@/styles/globals.css";
 
 const serif = Cormorant_Garamond({
@@ -37,7 +39,9 @@ export default function RootLayout({
       lang="ko"
       className={`${serif.variable} ${sans.variable} ${mono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }
