@@ -30,7 +30,11 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 - [02. 환경 변수 단일 진입점 (2026-05-20)](00-project-setup/02-env-and-pnpm.md) — Zod로 parse한 단일 env 객체, NEXT_PUBLIC_ 접두사 동작
 
 ### 10-nextjs
+- [01. RSC vs Client Component (2026-05-20)](10-nextjs/01-rsc-vs-client.md) — use client 경계, layout RSC + Provider 분리, use(params) 패턴
 - [02. next/font와 metadata (2026-05-20)](10-nextjs/02-fonts-and-metadata.md) — Cormorant Garamond + Inter + JetBrains Mono self-host, lang ko, metadata API
+
+### 20-react
+- [01. Context API vs Zustand (2026-05-20)](20-react/01-context-vs-zustand.md) — sessionId 공유 시나리오, selector 단위 re-render, Pinia 멘탈 모델 전이
 
 ### 30-typescript
 - [01. Zod 런타임 검증 패턴 (2026-05-20)](30-typescript/01-zod-patterns.md) — schema+타입 추론, safeParse vs parse, discriminatedUnion, apiFetch 패턴
@@ -45,3 +49,4 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 
 ### 60-state-data
 - [00. TanStack Query 기초 (2026-05-20)](60-state-data/00-tanstack-query-basics.md) — useQuery / useMutation / queryKey / staleTime / v5 isPending 변경점
+- [02. 서버 상태 vs 클라이언트 상태 (2026-05-20)](60-state-data/02-server-state-vs-client-state.md) — 출처별 도구 분리, REST 캐시 + WS 누적 합치는 패턴

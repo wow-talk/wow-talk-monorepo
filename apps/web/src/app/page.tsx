@@ -1,3 +1,5 @@
-export default function HomePage() {
-  return <main>wow-talk</main>;
+import { redirect } from "next/navigation";
+
+export default function HomePage(): never {
+  redirect("/rooms/lobby");
 }
