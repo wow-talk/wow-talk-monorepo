@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':backend:transport')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

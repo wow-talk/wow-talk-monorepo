@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${WOWTALK_DB_URL}
+    username: ${WOWTALK_DB_USERNAME}
+    password: ${WOWTALK_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
