@@ -28,7 +28,9 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 - `userId`: 발신자 사용자 식별자. 없으면 legacy 호환을 위해 서버가 임시 guest user를 생성한다.
 
 ## 클라이언트 -> 서버
-현재 지원 타입은 `SEND_MESSAGE` 하나다.
+현재는 legacy `SEND_MESSAGE`와 v1 `CHAT_SEND`를 함께 지원한다.
+
+### Legacy SEND_MESSAGE
 
 ```json
 {
@@ -37,9 +39,24 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 }
 ```
 
+### v1 CHAT_SEND
+
+```json
+{
+  "version": 1,
+  "type": "CHAT_SEND",
+  "requestId": "req-1",
+  "roomId": "room-1",
+  "payload": {
+    "text": "안녕하세요"
+  }
+}
+```
+
 필드 설명:
 - `type`: 메시지 타입
-- `payload`: 실제 채팅 내용
+- `requestId`: v1 요청 추적 ID. 서버 응답에 보존될 수 있다.
+- `payload`: legacy는 문자열, v1은 `{ "text": "..." }` 객체
 
 ## 서버 -> 클라이언트
 
