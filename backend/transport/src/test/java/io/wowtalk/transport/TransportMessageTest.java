@@ -11,6 +11,7 @@ class TransportMessageTest {
     @Test
     void sentAt이_없으면_현재_시간이_설정된다() {
         TransportMessage message = new TransportMessage(
+                "message-1",
                 new RoomId("room-1"),
                 new SessionId("session-1"),
                 "hello",
@@ -23,6 +24,7 @@ class TransportMessageTest {
     @Test
     void payload가_비어있으면_예외가_발생한다() {
         assertThatThrownBy(() -> new TransportMessage(
+                "message-1",
                 new RoomId("room-1"),
                 new SessionId("session-1"),
                 " ",

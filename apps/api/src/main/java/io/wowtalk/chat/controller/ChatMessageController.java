@@ -35,6 +35,7 @@ public class ChatMessageController {
     }
 
     public record ChatMessageResponse(
+            String messageId,
             String roomId,
             String sessionId,
             String payload,
@@ -42,6 +43,7 @@ public class ChatMessageController {
     ) {
         private static ChatMessageResponse from(ChatMessageResult result) {
             return new ChatMessageResponse(
+                    result.messageId().value(),
                     result.roomId().value(),
                     result.sessionId().value(),
                     result.payload(),

@@ -30,6 +30,8 @@ class DefaultChatServiceTest {
                 "안녕하세요"
         ));
 
+        assertThat(result.messageId()).isNotNull();
+        assertThat(result.messageId().value()).isNotBlank();
         assertThat(result.roomId()).isEqualTo(roomId);
         assertThat(result.sessionId()).isEqualTo(new SessionId("session-1"));
         assertThat(result.payload()).isEqualTo("안녕하세요");

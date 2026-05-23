@@ -2,6 +2,7 @@ package io.wowtalk.message.repository;
 
 import io.wowtalk.message.domain.ChatMessage;
 import io.wowtalk.message.domain.ChatMessageEntity;
+import io.wowtalk.message.domain.MessageId;
 import io.wowtalk.message.domain.MessageStatus;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.SessionId;
@@ -26,6 +27,7 @@ public class ChatMessageRepositoryJpaAdapter implements ChatMessageRepository {
     @Override
     public ChatMessage save(ChatMessage chatMessage) {
         ChatMessageEntity saved = chatMessageJpaRepository.save(new ChatMessageEntity(
+                chatMessage.messageId().value(),
                 chatMessage.roomId().value(),
                 chatMessage.sessionId().value(),
                 chatMessage.payload(),
@@ -52,6 +54,7 @@ public class ChatMessageRepositoryJpaAdapter implements ChatMessageRepository {
 
     private ChatMessage toDomain(ChatMessageEntity entity) {
         return new ChatMessage(
+                new MessageId(entity.getMessageId()),
                 new RoomId(entity.getRoomId()),
                 new SessionId(entity.getSessionId()),
                 entity.getPayload(),

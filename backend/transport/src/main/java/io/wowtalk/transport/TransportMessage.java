@@ -3,6 +3,7 @@ package io.wowtalk.transport;
 import java.time.Instant;
 
 public record TransportMessage(
+        String messageId,
         RoomId roomId,
         SessionId sessionId,
         String payload,
@@ -10,6 +11,9 @@ public record TransportMessage(
 ) {
 
     public TransportMessage {
+        if (messageId == null || messageId.isBlank()) {
+            throw new IllegalArgumentException("메시지 ID는 필수입니다.");
+        }
         if (roomId == null) {
             throw new IllegalArgumentException("채팅방 ID는 필수입니다.");
         }

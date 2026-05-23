@@ -21,6 +21,9 @@ public class ChatMessageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "message_id", nullable = false, unique = true, columnDefinition = "varchar(100) default gen_random_uuid()")
+    private String messageId;
+
     @Column(name = "room_id", nullable = false, length = 100)
     private String roomId;
 
@@ -40,7 +43,8 @@ public class ChatMessageEntity {
     protected ChatMessageEntity() {
     }
 
-    public ChatMessageEntity(String roomId, String sessionId, String payload, MessageStatus status, Instant sentAt) {
+    public ChatMessageEntity(String messageId, String roomId, String sessionId, String payload, MessageStatus status, Instant sentAt) {
+        this.messageId = messageId;
         this.roomId = roomId;
         this.sessionId = sessionId;
         this.payload = payload;
@@ -50,6 +54,9 @@ public class ChatMessageEntity {
 
     @PrePersist
     void prePersist() {
+        if (messageId == null || messageId.isBlank()) {
+            messageId = MessageId.newId().value();
+        }
         if (status == null) {
             status = MessageStatus.ACTIVE;
         }

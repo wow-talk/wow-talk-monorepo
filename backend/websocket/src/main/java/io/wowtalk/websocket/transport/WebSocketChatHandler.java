@@ -90,7 +90,13 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
             transportRouter.route(TransportMode.WEBSOCKET).broadcast(
                     result.roomId(),
-                    new TransportMessage(result.roomId(), result.sessionId(), result.payload(), result.sentAt())
+                    new TransportMessage(
+                            result.messageId().value(),
+                            result.roomId(),
+                            result.sessionId(),
+                            result.payload(),
+                            result.sentAt()
+                    )
             );
         } catch (WowTalkException exception) {
             sendError(session, exception.errorCode());

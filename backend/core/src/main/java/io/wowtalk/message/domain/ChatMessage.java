@@ -5,9 +5,16 @@ import io.wowtalk.transport.SessionId;
 import java.time.Instant;
 
 public record ChatMessage(
+        MessageId messageId,
         RoomId roomId,
         SessionId sessionId,
         String payload,
         Instant sentAt
 ) {
+
+    public ChatMessage {
+        if (messageId == null) {
+            messageId = MessageId.newId();
+        }
+    }
 }

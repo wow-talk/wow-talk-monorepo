@@ -3,6 +3,7 @@ package io.wowtalk.message.service;
 import io.wowtalk.channel.dto.ChannelTransportInfo;
 import io.wowtalk.channel.service.ChannelService;
 import io.wowtalk.message.domain.ChatMessage;
+import io.wowtalk.message.domain.MessageId;
 import io.wowtalk.message.dto.ChatMessageHistoryResponse;
 import io.wowtalk.message.dto.ChatMessageResult;
 import io.wowtalk.message.dto.SendChatMessageCommand;
@@ -31,6 +32,7 @@ public class DefaultChatService implements ChatService {
         Instant sentAt = Instant.now();
 
         ChatMessage chatMessage = new ChatMessage(
+                MessageId.newId(),
                 channelTransportInfo.roomId(),
                 command.sessionId(),
                 command.payload(),
@@ -40,6 +42,7 @@ public class DefaultChatService implements ChatService {
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
         return new ChatMessageResult(
+                savedMessage.messageId(),
                 savedMessage.roomId(),
                 savedMessage.sessionId(),
                 savedMessage.payload(),
@@ -53,6 +56,7 @@ public class DefaultChatService implements ChatService {
 
         return chatMessageRepository.findRecentByRoomId(roomId, limit).stream()
                 .map(message -> new ChatMessageResult(
+                        message.messageId(),
                         message.roomId(),
                         message.sessionId(),
                         message.payload(),
