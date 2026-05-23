@@ -15,8 +15,6 @@ import io.wowtalk.transport.TransportMode;
 import io.wowtalk.transport.TransportRouter;
 import io.wowtalk.user.domain.UserId;
 import io.wowtalk.user.service.UserService;
-import io.wowtalk.websocket.error.InvalidWebSocketMessageFormatException;
-import io.wowtalk.websocket.error.UnsupportedWebSocketMessageTypeException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +23,6 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class WebSocketChatHandler extends TextWebSocketHandler {
@@ -42,7 +39,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     private final RoomMemberService roomMemberService;
     private final WebSocketSessionRegistry sessionRegistry;
     private final WebSocketChatTransport webSocketChatTransport;
-    private final ObjectMapper objectMapper;
+    private final WebSocketInboundMessageParser inboundMessageParser;
 
     public WebSocketChatHandler(
             ChannelService channelService,
@@ -52,7 +49,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             RoomMemberService roomMemberService,
             WebSocketSessionRegistry sessionRegistry,
             WebSocketChatTransport webSocketChatTransport,
-            ObjectMapper objectMapper
+            WebSocketInboundMessageParser inboundMessageParser
     ) {
         this.channelService = channelService;
         this.chatService = chatService;
@@ -61,7 +58,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         this.roomMemberService = roomMemberService;
         this.sessionRegistry = sessionRegistry;
         this.webSocketChatTransport = webSocketChatTransport;
-        this.objectMapper = objectMapper;
+        this.inboundMessageParser = inboundMessageParser;
     }
 
     @Override
@@ -97,11 +94,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             ConnectionId connectionId = (ConnectionId) session.getAttributes().get(CONNECTION_ID);
             SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID);
             UserId userId = (UserId) session.getAttributes().get(USER_ID);
-            WebSocketInboundMessage inboundMessage = parseInboundMessage(message.getPayload());
-
-            if (inboundMessage.type() != WebSocketMessageType.SEND_MESSAGE) {
-                throw new UnsupportedWebSocketMessageTypeException();
-            }
+            ParsedInboundChatMessage inboundMessage = inboundMessageParser.parseChatMessage(message.getPayload());
 
             ChatMessageResult result = chatService.send(new SendChatMessageCommand(
                     roomId,
@@ -120,7 +113,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                             result.senderUserId().value(),
                             result.payload(),
                             result.sentAt()
-                    )
+                    ).withRequestId(inboundMessage.requestId())
             );
         } catch (WowTalkException exception) {
             sendError(session, exception.errorCode());
@@ -168,20 +161,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         UserId resolvedUserId = new UserId(userId);
         userService.get(resolvedUserId);
         return resolvedUserId;
-    }
-
-    private WebSocketInboundMessage parseInboundMessage(String payload) {
-        try {
-            WebSocketInboundMessage inboundMessage = objectMapper.readValue(payload, WebSocketInboundMessage.class);
-            if (inboundMessage.type() == null) {
-                throw new InvalidWebSocketMessageFormatException();
-            }
-            return inboundMessage;
-        } catch (WowTalkException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw new InvalidWebSocketMessageFormatException();
-        }
     }
 
     private void sendError(WebSocketSession session, ErrorCode errorCode) {

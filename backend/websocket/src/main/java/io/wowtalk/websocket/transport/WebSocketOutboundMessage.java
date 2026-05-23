@@ -12,6 +12,7 @@ public record WebSocketOutboundMessage(
         String senderUserId,
         String payload,
         String sentAt,
+        String requestId,
         String code,
         String message
 ) {
@@ -25,6 +26,7 @@ public record WebSocketOutboundMessage(
                 null,
                 null,
                 "웹소켓 연결이 완료되었습니다.",
+                null,
                 null,
                 null,
                 null
@@ -41,6 +43,7 @@ public record WebSocketOutboundMessage(
                 message.senderUserId(),
                 message.payload(),
                 message.sentAt().toString(),
+                message.requestId(),
                 null,
                 null
         );
@@ -49,6 +52,7 @@ public record WebSocketOutboundMessage(
     public static WebSocketOutboundMessage error(ErrorCode errorCode) {
         return new WebSocketOutboundMessage(
                 WebSocketMessageType.ERROR.name(),
+                null,
                 null,
                 null,
                 null,

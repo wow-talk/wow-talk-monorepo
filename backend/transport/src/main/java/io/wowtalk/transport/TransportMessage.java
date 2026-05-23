@@ -9,8 +9,21 @@ public record TransportMessage(
         SessionId sessionId,
         String senderUserId,
         String payload,
-        Instant sentAt
+        Instant sentAt,
+        String requestId
 ) {
+
+    public TransportMessage(
+            String messageId,
+            RoomId roomId,
+            ConnectionId connectionId,
+            SessionId sessionId,
+            String senderUserId,
+            String payload,
+            Instant sentAt
+    ) {
+        this(messageId, roomId, connectionId, sessionId, senderUserId, payload, sentAt, null);
+    }
 
     public TransportMessage {
         if (messageId == null || messageId.isBlank()) {
@@ -34,5 +47,9 @@ public record TransportMessage(
         if (sentAt == null) {
             sentAt = Instant.now();
         }
+    }
+
+    public TransportMessage withRequestId(String requestId) {
+        return new TransportMessage(messageId, roomId, connectionId, sessionId, senderUserId, payload, sentAt, requestId);
     }
 }
