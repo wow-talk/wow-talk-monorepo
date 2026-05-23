@@ -31,6 +31,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     private static final String CONNECTION_ID = "connectionId";
     private static final String SESSION_ID = "sessionId";
     private static final String USER_ID = "userId";
+    private static final String PROTOCOL_VERSION = "protocolVersion";
 
     private final ChannelService channelService;
     private final ChatService chatService;
@@ -73,13 +74,10 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             session.getAttributes().put(CONNECTION_ID, connectionInfo.connectionId());
             session.getAttributes().put(SESSION_ID, connectionInfo.sessionId());
             session.getAttributes().put(USER_ID, connectionInfo.userId());
+            session.getAttributes().put(WebSocketChatTransport.PROTOCOL_VERSION_ATTRIBUTE, connectionInfo.protocolVersion());
             webSocketChatTransport.sendSystemMessage(
                     session,
-                    WebSocketOutboundMessage.connected(
-                            connectionInfo.roomId().value(),
-                            connectionInfo.connectionId().value(),
-                            connectionInfo.sessionId().value()
-                    )
+                    connectedMessage(connectionInfo)
             );
         } catch (WowTalkException exception) {
             sendError(session, exception.errorCode());
@@ -135,6 +133,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         String connectionId = queryParams.get(CONNECTION_ID);
         String sessionId = queryParams.get(SESSION_ID);
         String userId = queryParams.get(USER_ID);
+        String protocolVersion = queryParams.get(PROTOCOL_VERSION);
 
         if (roomId == null || roomId.isBlank() || sessionId == null || sessionId.isBlank()) {
             throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
@@ -143,8 +142,25 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         UserId resolvedUserId = resolveUserId(userId, sessionId);
 
         ConnectionId resolvedConnectionId = resolveConnectionId(connectionId);
+        String resolvedProtocolVersion = resolveProtocolVersion(protocolVersion);
 
-        return new ConnectionInfo(new RoomId(roomId), resolvedConnectionId, new SessionId(sessionId), resolvedUserId);
+        return new ConnectionInfo(new RoomId(roomId), resolvedConnectionId, new SessionId(sessionId), resolvedUserId, resolvedProtocolVersion);
+    }
+
+    private Object connectedMessage(ConnectionInfo connectionInfo) {
+        if ("1".equals(connectionInfo.protocolVersion())) {
+            return RealtimeOutboundMessage.connected(
+                    connectionInfo.roomId().value(),
+                    connectionInfo.connectionId().value(),
+                    connectionInfo.sessionId().value(),
+                    connectionInfo.userId().value()
+            );
+        }
+        return WebSocketOutboundMessage.connected(
+                connectionInfo.roomId().value(),
+                connectionInfo.connectionId().value(),
+                connectionInfo.sessionId().value()
+        );
     }
 
     private ConnectionId resolveConnectionId(String connectionId) {
@@ -163,8 +179,22 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         return resolvedUserId;
     }
 
+    private String resolveProtocolVersion(String protocolVersion) {
+        if (protocolVersion == null || protocolVersion.isBlank()) {
+            return "legacy";
+        }
+        if (!"1".equals(protocolVersion)) {
+            throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
+        }
+        return protocolVersion;
+    }
+
     private void sendError(WebSocketSession session, ErrorCode errorCode) {
         if (session.isOpen()) {
+            if (webSocketChatTransport.usesProtocolV1(session)) {
+                webSocketChatTransport.sendSystemMessage(session, RealtimeOutboundMessage.error(errorCode));
+                return;
+            }
             webSocketChatTransport.sendSystemMessage(session, WebSocketOutboundMessage.error(errorCode));
         }
     }
@@ -186,7 +216,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             RoomId roomId,
             ConnectionId connectionId,
             SessionId sessionId,
-            UserId userId
+            UserId userId,
+            String protocolVersion
     ) {
     }
 }

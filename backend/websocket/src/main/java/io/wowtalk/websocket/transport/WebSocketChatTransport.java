@@ -14,6 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 public class WebSocketChatTransport implements ChatTransport {
 
+    public static final String PROTOCOL_VERSION_ATTRIBUTE = "protocolVersion";
+
     private final WebSocketSessionRegistry sessionRegistry;
     private final ObjectMapper objectMapper;
 
@@ -34,26 +36,35 @@ public class WebSocketChatTransport implements ChatTransport {
             return;
         }
 
-        send(session, WebSocketOutboundMessage.chatMessage(message));
+        send(session, createChatMessage(session, message));
     }
 
     @Override
     public void broadcast(RoomId roomId, TransportMessage message) {
         Map<ConnectionId, WebSocketSession> sessions = sessionRegistry.getRoomSessions(roomId);
-        WebSocketOutboundMessage outboundChatMessage = WebSocketOutboundMessage.chatMessage(message);
-
         for (WebSocketSession session : sessions.values()) {
             if (session.isOpen()) {
-                send(session, outboundChatMessage);
+                send(session, createChatMessage(session, message));
             }
         }
     }
 
-    public void sendSystemMessage(WebSocketSession session, WebSocketOutboundMessage outboundMessage) {
+    public void sendSystemMessage(WebSocketSession session, Object outboundMessage) {
         send(session, outboundMessage);
     }
 
-    private void send(WebSocketSession session, WebSocketOutboundMessage outboundChatMessage) {
+    private Object createChatMessage(WebSocketSession session, TransportMessage message) {
+        if (usesProtocolV1(session)) {
+            return RealtimeOutboundMessage.chatMessageCreated(message);
+        }
+        return WebSocketOutboundMessage.chatMessage(message);
+    }
+
+    public boolean usesProtocolV1(WebSocketSession session) {
+        return "1".equals(String.valueOf(session.getAttributes().get(PROTOCOL_VERSION_ATTRIBUTE)));
+    }
+
+    private void send(WebSocketSession session, Object outboundChatMessage) {
         try {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(outboundChatMessage)));
         } catch (Exception exception) {
