@@ -13,16 +13,17 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 신규 클라이언트는 `userId`를 함께 보낸다.
 
 ```text
-ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}&userId={userId}
+ws://localhost:8080/ws/chat?roomId={roomId}&connectionId={connectionId}&sessionId={sessionId}&userId={userId}
 ```
 
 예시:
 ```text
-ws://localhost:8080/ws/chat?roomId=room-1&sessionId=conn-1&userId=guest-1
+ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&userId=guest-1
 ```
 
 ## 연결 파라미터
 - `roomId`: 채팅방 식별자
+- `connectionId`: 현재 WebSocket 접속 식별자. 없으면 서버가 생성해서 `CONNECTED` 응답으로 반환한다.
 - `sessionId`: 기존 클라이언트 호환용 세션 식별자. 장기적으로 `connectionId`로 대체한다.
 - `userId`: 발신자 사용자 식별자. 없으면 legacy 호환을 위해 서버가 임시 guest user를 생성한다.
 
@@ -47,6 +48,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=conn-1&userId=guest-1
 {
   "type": "CONNECTED",
   "roomId": "room-1",
+  "connectionId": "conn-1",
   "sessionId": "conn-1",
   "messageId": null,
   "senderUserId": null,
@@ -62,6 +64,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=conn-1&userId=guest-1
 {
   "type": "CHAT_MESSAGE",
   "roomId": "room-1",
+  "connectionId": "conn-1",
   "sessionId": "conn-1",
   "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
   "senderUserId": "guest-1",
@@ -77,6 +80,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=conn-1&userId=guest-1
 {
   "type": "ERROR",
   "roomId": null,
+  "connectionId": null,
   "sessionId": null,
   "messageId": null,
   "senderUserId": null,

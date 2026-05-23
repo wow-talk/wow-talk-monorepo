@@ -41,6 +41,12 @@ GET /api/v1/channels/{roomId}/messages?limit=50
 POST /api/v1/guests
 ```
 
+방 참여:
+
+```http
+POST /api/v1/rooms/{roomId}/members
+```
+
 ### WebSocket
 
 연결:
@@ -52,7 +58,7 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 신규 클라이언트는 `userId`를 추가한다.
 
 ```txt
-ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}&userId={userId}
+ws://localhost:8080/ws/chat?roomId={roomId}&connectionId={connectionId}&sessionId={sessionId}&userId={userId}
 ```
 
 송신:
@@ -70,6 +76,7 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}&userId={userId
 {
   "type": "CHAT_MESSAGE",
   "roomId": "lobby",
+  "connectionId": "conn-1",
   "sessionId": "conn-1",
   "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
   "senderUserId": "guest-1",
@@ -122,7 +129,33 @@ POST /api/v1/guests
 ```txt
 userId
 displayName
+connectionId
 sessionId
+```
+
+### Step 2-1. Room member join 추가
+
+프론트는 WebSocket 연결 전에 방 참여 API를 호출한다.
+
+```http
+POST /api/v1/rooms/lobby/members
+Content-Type: application/json
+
+{
+  "userId": "guest-1"
+}
+```
+
+응답:
+
+```json
+{
+  "roomId": "lobby",
+  "userId": "guest-1",
+  "role": "MEMBER",
+  "status": "ACTIVE",
+  "joinedAt": "2026-05-24T00:00:00Z"
+}
 ```
 
 ### Step 3. WebSocket 연결 파라미터 변경
@@ -136,7 +169,7 @@ roomId + sessionId
 목표:
 
 ```txt
-roomId + connectionId
+roomId + connectionId + userId
 ```
 
 그리고 WebSocket 연결 후 `HELLO`를 보낸다.

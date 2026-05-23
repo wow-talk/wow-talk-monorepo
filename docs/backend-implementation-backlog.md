@@ -51,11 +51,11 @@
 작업:
 
 - [x] `UserId` value object 추가
-- [ ] `ConnectionId` value object 추가
+- [x] `ConnectionId` value object 추가
 - [x] `ChatMessage`에 `senderUserId` 추가
 - [x] WebSocket 연결 attribute에 userId 추가
-- [ ] WebSocket 연결 attribute를 connectionId까지 분리
-- [ ] 기존 sessionId는 legacy compatibility로만 유지
+- [x] WebSocket 연결 attribute를 connectionId까지 분리
+- [ ] 기존 sessionId는 legacy compatibility로만 유지하고 신규 프론트에서 제거
 
 프론트 영향:
 
@@ -111,8 +111,8 @@
 
 - [ ] `Room` 도메인 정리
 - [ ] 기존 `Channel`과 `Room` 관계 결정
-- [ ] `RoomMember` 추가
-- [ ] room 입장 API 추가
+- [x] `RoomMember` 추가
+- [x] room 입장 API 추가
 - [ ] room 상태 관리 추가
 
 프론트 영향:
