@@ -1,0 +1,23 @@
+{
+  "name": "wow-talk-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev:api": "./gradlew :apps:api:bootRun",
+    "build:web": "pnpm --filter ./apps/web build",
+    "build:api": "./gradlew :apps:api:build",
+    "build": "pnpm build:web && pnpm build:api",
+    "lint:web": "pnpm --filter ./apps/web lint",
+    "test:api": "./gradlew test",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "tf:fmt": "terraform -chdir=infra/terraform fmt -recursive",
+    "tf:validate:dev": "terraform -chdir=infra/terraform/environments/dev validate",
+    "tf:validate:prod": "terraform -chdir=infra/terraform/environments/prod validate"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "pnpm@10.0.0"
+}

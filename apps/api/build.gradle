@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation project(':wowtalk-core')
-    implementation project(':wowtalk-transport')
-    implementation project(':wowtalk-rawtcp')
-    implementation project(':wowtalk-websocket')
+    implementation project(':backend:core')
+    implementation project(':backend:transport')
+    implementation project(':backend:rawtcp')
+    implementation project(':backend:websocket')
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

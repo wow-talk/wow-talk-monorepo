@@ -83,7 +83,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
 - `TRANSPORT_MODE_MISMATCH`
 
 ## 프론트엔드 테스트 순서
-1. 서버 실행: `./gradlew :wowtalk-api:bootRun`
+1. 서버 실행: `./gradlew :apps:api:bootRun`
 2. 브라우저에서 `http://localhost:8080/ws-test.html` 접속
 3. 같은 `roomId`, 다른 `sessionId`로 두 탭 이상 연결
 4. JSON 메시지 전송

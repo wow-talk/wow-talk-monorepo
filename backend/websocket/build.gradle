@@ -1,6 +1,6 @@
 dependencies {
-    implementation project(':wowtalk-core')
-    implementation project(':wowtalk-transport')
+    implementation project(':backend:core')
+    implementation project(':backend:transport')
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-json'
 
