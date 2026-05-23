@@ -41,6 +41,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
   "type": "CONNECTED",
   "roomId": "room-1",
   "sessionId": "user-1",
+  "messageId": null,
   "payload": "웹소켓 연결이 완료되었습니다.",
   "sentAt": null,
   "code": null,
@@ -54,6 +55,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
   "type": "CHAT_MESSAGE",
   "roomId": "room-1",
   "sessionId": "user-1",
+  "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
   "payload": "안녕하세요",
   "sentAt": "2026-04-24T12:00:00Z",
   "code": null,
@@ -67,6 +69,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
   "type": "ERROR",
   "roomId": null,
   "sessionId": null,
+  "messageId": null,
   "payload": null,
   "sentAt": null,
   "code": "INVALID_WEBSOCKET_MESSAGE_FORMAT",
@@ -90,6 +93,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
 5. 같은 방에만 `CHAT_MESSAGE`가 오는지 확인
 
 ## 비고
-- 현재 채널/메시지는 메모리 기반이다.
-- 서버 재시작 시 데이터는 유지되지 않는다.
-- 이 계약은 이후 `Raw TCP` 구현에서도 재사용 가능한 기준 문서다.
+- 현재 로컬 프로필은 Postgres 기반 JPA 저장소를 사용한다.
+- 이 문서는 현재 구현된 WebSocket 계약을 설명한다.
+- 장기 프로토콜 방향은 [realtime-protocol-v1.md](./realtime-protocol-v1.md)를 기준으로 한다.
+- 이후 `Raw TCP`를 추가하더라도 메시지 의미와 유스케이스는 최대한 동일하게 유지한다.

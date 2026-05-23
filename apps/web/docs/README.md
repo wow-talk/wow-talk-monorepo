@@ -2,6 +2,12 @@
 
 wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md` §11) 정의대로.
 
+프론트와 백엔드가 함께 봐야 하는 API/프로토콜 계약은 모노레포 루트의 `docs/`에 둔다.
+
+- [프론트/백엔드 계약](../../../docs/frontend-backend-contract.md)
+- [현재 WebSocket API](../../../docs/websocket-api.md)
+- [실시간 프로토콜 v1](../../../docs/realtime-protocol-v1.md)
+
 ## 카테고리
 
 | 폴더 | 주제 |

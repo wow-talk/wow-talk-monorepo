@@ -40,6 +40,19 @@ pnpm build:web
 pnpm build:api
 ```
 
+## Documentation
+
+```txt
+docs/          Product, backend, API contract, infrastructure direction
+apps/web/docs  Frontend implementation notes and learning records
+```
+
+Frontend/backend shared contracts live in:
+
+- [docs/frontend-backend-contract.md](docs/frontend-backend-contract.md)
+- [docs/websocket-api.md](docs/websocket-api.md)
+- [docs/realtime-protocol-v1.md](docs/realtime-protocol-v1.md)
+
 ## AWS deployment direction
 
 The target shape is separate container images for `web` and `api`, pushed to ECR and deployed as separate ECS/Fargate services behind an ALB. PostgreSQL should be managed with RDS, with credentials injected through Secrets Manager or SSM Parameter Store.
