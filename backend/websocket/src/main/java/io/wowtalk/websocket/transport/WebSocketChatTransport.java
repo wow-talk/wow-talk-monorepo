@@ -1,8 +1,8 @@
 package io.wowtalk.websocket.transport;
 
 import io.wowtalk.transport.ChatTransport;
+import io.wowtalk.transport.ConnectionId;
 import io.wowtalk.transport.RoomId;
-import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
 import io.wowtalk.transport.TransportMode;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class WebSocketChatTransport implements ChatTransport {
 
     @Override
     public void sendToSession(TransportMessage message) {
-        WebSocketSession session = sessionRegistry.getRoomSessions(message.roomId()).get(message.sessionId());
+        WebSocketSession session = sessionRegistry.getRoomSessions(message.roomId()).get(message.connectionId());
         if (session == null || !session.isOpen()) {
             return;
         }
@@ -39,7 +39,7 @@ public class WebSocketChatTransport implements ChatTransport {
 
     @Override
     public void broadcast(RoomId roomId, TransportMessage message) {
-        Map<SessionId, WebSocketSession> sessions = sessionRegistry.getRoomSessions(roomId);
+        Map<ConnectionId, WebSocketSession> sessions = sessionRegistry.getRoomSessions(roomId);
         WebSocketOutboundMessage outboundChatMessage = WebSocketOutboundMessage.chatMessage(message);
 
         for (WebSocketSession session : sessions.values()) {

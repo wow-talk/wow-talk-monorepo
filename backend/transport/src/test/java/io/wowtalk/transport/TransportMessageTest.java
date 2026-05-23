@@ -13,6 +13,7 @@ class TransportMessageTest {
         TransportMessage message = new TransportMessage(
                 "message-1",
                 new RoomId("room-1"),
+                new ConnectionId("connection-1"),
                 new SessionId("session-1"),
                 "user-1",
                 "hello",
@@ -27,6 +28,7 @@ class TransportMessageTest {
         assertThatThrownBy(() -> new TransportMessage(
                 "message-1",
                 new RoomId("room-1"),
+                new ConnectionId("connection-1"),
                 new SessionId("session-1"),
                 "user-1",
                 " ",

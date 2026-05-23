@@ -6,6 +6,8 @@ import io.wowtalk.common.error.WowTalkException;
 import io.wowtalk.message.dto.ChatMessageResult;
 import io.wowtalk.message.dto.SendChatMessageCommand;
 import io.wowtalk.message.service.ChatService;
+import io.wowtalk.room.service.RoomMemberService;
+import io.wowtalk.transport.ConnectionId;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
@@ -29,6 +31,7 @@ import tools.jackson.databind.ObjectMapper;
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private static final String ROOM_ID = "roomId";
+    private static final String CONNECTION_ID = "connectionId";
     private static final String SESSION_ID = "sessionId";
     private static final String USER_ID = "userId";
 
@@ -36,6 +39,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     private final ChatService chatService;
     private final TransportRouter transportRouter;
     private final UserService userService;
+    private final RoomMemberService roomMemberService;
     private final WebSocketSessionRegistry sessionRegistry;
     private final WebSocketChatTransport webSocketChatTransport;
     private final ObjectMapper objectMapper;
@@ -45,6 +49,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             ChatService chatService,
             TransportRouter transportRouter,
             UserService userService,
+            RoomMemberService roomMemberService,
             WebSocketSessionRegistry sessionRegistry,
             WebSocketChatTransport webSocketChatTransport,
             ObjectMapper objectMapper
@@ -53,6 +58,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         this.chatService = chatService;
         this.transportRouter = transportRouter;
         this.userService = userService;
+        this.roomMemberService = roomMemberService;
         this.sessionRegistry = sessionRegistry;
         this.webSocketChatTransport = webSocketChatTransport;
         this.objectMapper = objectMapper;
@@ -64,13 +70,19 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             ConnectionInfo connectionInfo = resolveConnectionInfo(session.getUri());
 
             channelService.ensureChannel(connectionInfo.roomId(), TransportMode.WEBSOCKET);
-            sessionRegistry.register(connectionInfo.roomId(), connectionInfo.sessionId(), session);
+            roomMemberService.join(connectionInfo.roomId(), connectionInfo.userId());
+            sessionRegistry.register(connectionInfo.roomId(), connectionInfo.connectionId(), connectionInfo.sessionId(), session);
             session.getAttributes().put(ROOM_ID, connectionInfo.roomId());
+            session.getAttributes().put(CONNECTION_ID, connectionInfo.connectionId());
             session.getAttributes().put(SESSION_ID, connectionInfo.sessionId());
             session.getAttributes().put(USER_ID, connectionInfo.userId());
             webSocketChatTransport.sendSystemMessage(
                     session,
-                    WebSocketOutboundMessage.connected(connectionInfo.roomId().value(), connectionInfo.sessionId().value())
+                    WebSocketOutboundMessage.connected(
+                            connectionInfo.roomId().value(),
+                            connectionInfo.connectionId().value(),
+                            connectionInfo.sessionId().value()
+                    )
             );
         } catch (WowTalkException exception) {
             sendError(session, exception.errorCode());
@@ -82,6 +94,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
             RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID);
+            ConnectionId connectionId = (ConnectionId) session.getAttributes().get(CONNECTION_ID);
             SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID);
             UserId userId = (UserId) session.getAttributes().get(USER_ID);
             WebSocketInboundMessage inboundMessage = parseInboundMessage(message.getPayload());
@@ -102,6 +115,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                     new TransportMessage(
                             result.messageId().value(),
                             result.roomId(),
+                            connectionId,
                             result.sessionId(),
                             result.senderUserId().value(),
                             result.payload(),
@@ -125,6 +139,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         Map<String, String> queryParams = parseQueryParams(uri.getQuery());
         String roomId = queryParams.get(ROOM_ID);
+        String connectionId = queryParams.get(CONNECTION_ID);
         String sessionId = queryParams.get(SESSION_ID);
         String userId = queryParams.get(USER_ID);
 
@@ -134,7 +149,16 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         UserId resolvedUserId = resolveUserId(userId, sessionId);
 
-        return new ConnectionInfo(new RoomId(roomId), new SessionId(sessionId), resolvedUserId);
+        ConnectionId resolvedConnectionId = resolveConnectionId(connectionId);
+
+        return new ConnectionInfo(new RoomId(roomId), resolvedConnectionId, new SessionId(sessionId), resolvedUserId);
+    }
+
+    private ConnectionId resolveConnectionId(String connectionId) {
+        if (connectionId == null || connectionId.isBlank()) {
+            return ConnectionId.newId();
+        }
+        return new ConnectionId(connectionId);
     }
 
     private UserId resolveUserId(String userId, String legacySessionId) {
@@ -181,6 +205,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private record ConnectionInfo(
             RoomId roomId,
+            ConnectionId connectionId,
             SessionId sessionId,
             UserId userId
     ) {

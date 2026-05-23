@@ -5,6 +5,7 @@ import java.time.Instant;
 public record TransportMessage(
         String messageId,
         RoomId roomId,
+        ConnectionId connectionId,
         SessionId sessionId,
         String senderUserId,
         String payload,
@@ -17,6 +18,9 @@ public record TransportMessage(
         }
         if (roomId == null) {
             throw new IllegalArgumentException("채팅방 ID는 필수입니다.");
+        }
+        if (connectionId == null) {
+            throw new IllegalArgumentException("연결 ID는 필수입니다.");
         }
         if (sessionId == null) {
             throw new IllegalArgumentException("세션 ID는 필수입니다.");

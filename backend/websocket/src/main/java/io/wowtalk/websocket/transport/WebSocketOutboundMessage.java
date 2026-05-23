@@ -6,6 +6,7 @@ import io.wowtalk.transport.TransportMessage;
 public record WebSocketOutboundMessage(
         String type,
         String roomId,
+        String connectionId,
         String sessionId,
         String messageId,
         String senderUserId,
@@ -15,10 +16,11 @@ public record WebSocketOutboundMessage(
         String message
 ) {
 
-    public static WebSocketOutboundMessage connected(String roomId, String sessionId) {
+    public static WebSocketOutboundMessage connected(String roomId, String connectionId, String sessionId) {
         return new WebSocketOutboundMessage(
                 WebSocketMessageType.CONNECTED.name(),
                 roomId,
+                connectionId,
                 sessionId,
                 null,
                 null,
@@ -33,6 +35,7 @@ public record WebSocketOutboundMessage(
         return new WebSocketOutboundMessage(
                 WebSocketMessageType.CHAT_MESSAGE.name(),
                 message.roomId().value(),
+                message.connectionId().value(),
                 message.sessionId().value(),
                 message.messageId(),
                 message.senderUserId(),
@@ -46,6 +49,7 @@ public record WebSocketOutboundMessage(
     public static WebSocketOutboundMessage error(ErrorCode errorCode) {
         return new WebSocketOutboundMessage(
                 WebSocketMessageType.ERROR.name(),
+                null,
                 null,
                 null,
                 null,
