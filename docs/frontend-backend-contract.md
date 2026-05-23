@@ -169,7 +169,7 @@ roomId + sessionId
 목표:
 
 ```txt
-roomId + connectionId + userId
+roomId + connectionId + userId + protocolVersion
 ```
 
 그리고 WebSocket 연결 후 `HELLO`를 보낸다.
@@ -212,7 +212,14 @@ v1:
 }
 ```
 
-서버는 전환 기간 동안 둘 다 받는다. 현재 백엔드는 legacy `SEND_MESSAGE`와 v1 `CHAT_SEND` 수신을 모두 지원한다.
+서버는 전환 기간 동안 둘 다 받는다.
+
+현재 백엔드는:
+
+- legacy `SEND_MESSAGE` 수신 지원
+- v1 `CHAT_SEND` 수신 지원
+- `protocolVersion=1` 연결에 v1 outbound envelope 응답
+- `protocolVersion`이 없는 연결에 legacy 응답
 
 ## 프론트 구현 영향도
 
