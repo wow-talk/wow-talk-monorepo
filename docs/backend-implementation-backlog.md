@@ -89,12 +89,13 @@
 
 작업:
 
-- [ ] inbound envelope DTO 추가
+- [x] inbound envelope DTO 추가
 - [ ] outbound envelope DTO 추가
-- [ ] requestId/eventId 추가
-- [ ] legacy `SEND_MESSAGE`와 v1 `CHAT_SEND` 동시 지원
+- [x] requestId 수신과 transport 전달 추가
+- [ ] eventId 추가
+- [x] legacy `SEND_MESSAGE`와 v1 `CHAT_SEND` 동시 지원
 - [ ] error envelope 통일
-- [ ] protocol parsing test 추가
+- [x] protocol parsing test 추가
 
 프론트 영향:
 

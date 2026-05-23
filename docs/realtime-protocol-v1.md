@@ -115,6 +115,8 @@ Server -> Client: *_EVENT 성격
 
 채팅 메시지를 보낸다.
 
+현재 WebSocket 구현에서 지원한다. legacy `SEND_MESSAGE`와 병행된다.
+
 ```json
 {
   "version": 1,
@@ -136,6 +138,8 @@ Server -> Client: *_EVENT 성격
 ### PING
 
 애플리케이션 레벨 heartbeat다.
+
+아직 구현하지 않았다.
 
 ```json
 {
