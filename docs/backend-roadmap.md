@@ -259,8 +259,8 @@ Room
 
 1. `UserId`, `MessageId` value object 추가
 2. `ChatMessage`에 `messageId`, `senderUserId` 추가
-3. WebSocket 연결의 `sessionId`를 connection 식별자로만 사용
-4. 임시 guest user 발급 API 또는 guest user 생성 정책 추가
+3. 임시 guest user 발급 API 추가
+4. WebSocket 연결의 `sessionId`를 connection 식별자로만 사용
 5. protocol envelope 초안 구현
 6. 채팅 입력을 게임 command로 해석할 수 있는 확장 지점 설계
 

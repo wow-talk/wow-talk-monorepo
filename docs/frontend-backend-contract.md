@@ -35,12 +35,24 @@ POST /api/v1/channels
 GET /api/v1/channels/{roomId}/messages?limit=50
 ```
 
+게스트 사용자 발급:
+
+```http
+POST /api/v1/guests
+```
+
 ### WebSocket
 
 연결:
 
 ```txt
 ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
+```
+
+신규 클라이언트는 `userId`를 추가한다.
+
+```txt
+ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}&userId={userId}
 ```
 
 송신:
@@ -58,8 +70,9 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 {
   "type": "CHAT_MESSAGE",
   "roomId": "lobby",
-  "sessionId": "user-1",
+  "sessionId": "conn-1",
   "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
+  "senderUserId": "guest-1",
   "payload": "안녕하세요",
   "sentAt": "2026-05-23T13:00:00Z"
 }
@@ -75,12 +88,12 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 
 ```txt
 messageId
+senderUserId
 ```
 
 추가 예정:
 
 ```txt
-senderUserId
 connectionId
 ```
 
@@ -109,7 +122,7 @@ POST /api/v1/guests
 ```txt
 userId
 displayName
-connectionId
+sessionId
 ```
 
 ### Step 3. WebSocket 연결 파라미터 변경
@@ -216,6 +229,6 @@ ERROR -> 에러 토스트 또는 시스템 메시지
 1. guest user API가 생길 예정
 2. `sessionId`는 장기적으로 `connectionId`가 된다
 3. user identity는 `userId`로 분리된다
-4. 메시지는 `messageId`를 가진다
+4. 메시지는 `messageId`와 `senderUserId`를 가진다
 5. WebSocket payload는 envelope v1으로 바뀔 예정이다
 6. 게임 이벤트는 채팅 stream 위에 같이 내려올 수 있다

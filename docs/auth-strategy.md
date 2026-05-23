@@ -31,7 +31,7 @@ Phase 4: Room Permission / Moderation
 
 초기 구현에서는 프론트가 임시 sessionId를 만드는 대신, 백엔드가 guest user와 connectionId를 발급하는 방향으로 간다.
 
-예상 API:
+현재 API:
 
 ```http
 POST /api/v1/guests

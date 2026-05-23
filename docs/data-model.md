@@ -321,9 +321,9 @@ broker 후보:
 
 ## 구현 순서
 
-1. `MessageId`, `UserId`, `ConnectionId` 도입
+1. `MessageId`, `UserId` 도입
 2. `ChatMessage`에 `messageId`, `senderUserId` 추가
-3. DB entity와 API response에 `messageId` 추가
+3. DB entity와 API response에 `messageId`, `senderUserId` 추가
 4. guest user 모델 추가
 5. room/member 모델 추가
 6. protocol envelope와 requestId/eventId 도입

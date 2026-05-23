@@ -10,14 +10,21 @@
 ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 ```
 
+신규 클라이언트는 `userId`를 함께 보낸다.
+
+```text
+ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}&userId={userId}
+```
+
 예시:
 ```text
-ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
+ws://localhost:8080/ws/chat?roomId=room-1&sessionId=conn-1&userId=guest-1
 ```
 
 ## 연결 파라미터
 - `roomId`: 채팅방 식별자
-- `sessionId`: 클라이언트 세션 식별자
+- `sessionId`: 기존 클라이언트 호환용 세션 식별자. 장기적으로 `connectionId`로 대체한다.
+- `userId`: 발신자 사용자 식별자. 없으면 legacy 호환을 위해 서버가 임시 guest user를 생성한다.
 
 ## 클라이언트 -> 서버
 현재 지원 타입은 `SEND_MESSAGE` 하나다.
@@ -40,8 +47,9 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
 {
   "type": "CONNECTED",
   "roomId": "room-1",
-  "sessionId": "user-1",
+  "sessionId": "conn-1",
   "messageId": null,
+  "senderUserId": null,
   "payload": "웹소켓 연결이 완료되었습니다.",
   "sentAt": null,
   "code": null,
@@ -54,8 +62,9 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
 {
   "type": "CHAT_MESSAGE",
   "roomId": "room-1",
-  "sessionId": "user-1",
+  "sessionId": "conn-1",
   "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
+  "senderUserId": "guest-1",
   "payload": "안녕하세요",
   "sentAt": "2026-04-24T12:00:00Z",
   "code": null,
@@ -70,6 +79,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
   "roomId": null,
   "sessionId": null,
   "messageId": null,
+  "senderUserId": null,
   "payload": null,
   "sentAt": null,
   "code": "INVALID_WEBSOCKET_MESSAGE_FORMAT",
@@ -83,6 +93,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&sessionId=user-1
 - `UNSUPPORTED_MESSAGE_TYPE`
 - `INVALID_CHAT_MESSAGE`
 - `CHANNEL_NOT_FOUND`
+- `USER_NOT_FOUND`
 - `TRANSPORT_MODE_MISMATCH`
 
 ## 프론트엔드 테스트 순서

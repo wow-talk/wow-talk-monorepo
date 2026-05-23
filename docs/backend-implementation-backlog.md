@@ -50,10 +50,11 @@
 
 작업:
 
-- [ ] `UserId` value object 추가
+- [x] `UserId` value object 추가
 - [ ] `ConnectionId` value object 추가
-- [ ] `ChatMessage`에 `senderUserId` 추가
-- [ ] WebSocket 연결 attribute를 userId/connectionId로 분리
+- [x] `ChatMessage`에 `senderUserId` 추가
+- [x] WebSocket 연결 attribute에 userId 추가
+- [ ] WebSocket 연결 attribute를 connectionId까지 분리
 - [ ] 기존 sessionId는 legacy compatibility로만 유지
 
 프론트 영향:
@@ -69,10 +70,10 @@
 
 작업:
 
-- [ ] `User` 도메인 추가
+- [x] `User` 도메인 추가
 - [ ] `AuthIdentity` 도메인 추가
-- [ ] guest user 생성 API 추가
-- [ ] displayName 검증 정책 추가
+- [x] guest user 생성 API 추가
+- [x] displayName 검증 정책 추가
 - [ ] guest -> social account linking을 고려한 구조로 repository 설계
 
 프론트 영향:
