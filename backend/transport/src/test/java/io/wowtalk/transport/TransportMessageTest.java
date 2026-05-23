@@ -14,6 +14,7 @@ class TransportMessageTest {
                 "message-1",
                 new RoomId("room-1"),
                 new SessionId("session-1"),
+                "user-1",
                 "hello",
                 null
         );
@@ -27,6 +28,7 @@ class TransportMessageTest {
                 "message-1",
                 new RoomId("room-1"),
                 new SessionId("session-1"),
+                "user-1",
                 " ",
                 Instant.now()
         )).isInstanceOf(IllegalArgumentException.class)

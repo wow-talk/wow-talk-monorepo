@@ -9,6 +9,7 @@ import io.wowtalk.message.dto.ChatMessageResult;
 import io.wowtalk.message.dto.SendChatMessageCommand;
 import io.wowtalk.message.repository.ChatMessageRepository;
 import io.wowtalk.transport.RoomId;
+import io.wowtalk.user.service.UserService;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ public class DefaultChatService implements ChatService {
 
     private final ChannelService channelService;
     private final ChatMessageRepository chatMessageRepository;
+    private final UserService userService;
 
-    public DefaultChatService(ChannelService channelService, ChatMessageRepository chatMessageRepository) {
+    public DefaultChatService(ChannelService channelService, ChatMessageRepository chatMessageRepository, UserService userService) {
         this.channelService = channelService;
         this.chatMessageRepository = chatMessageRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -29,12 +32,14 @@ public class DefaultChatService implements ChatService {
         validatePayload(command.payload());
 
         ChannelTransportInfo channelTransportInfo = channelService.getTransportInfo(command.roomId());
+        userService.get(command.senderUserId());
         Instant sentAt = Instant.now();
 
         ChatMessage chatMessage = new ChatMessage(
                 MessageId.newId(),
                 channelTransportInfo.roomId(),
                 command.sessionId(),
+                command.senderUserId(),
                 command.payload(),
                 sentAt
         );
@@ -45,6 +50,7 @@ public class DefaultChatService implements ChatService {
                 savedMessage.messageId(),
                 savedMessage.roomId(),
                 savedMessage.sessionId(),
+                savedMessage.senderUserId(),
                 savedMessage.payload(),
                 savedMessage.sentAt()
         );
@@ -59,6 +65,7 @@ public class DefaultChatService implements ChatService {
                         message.messageId(),
                         message.roomId(),
                         message.sessionId(),
+                        message.senderUserId(),
                         message.payload(),
                         message.sentAt()
                 ))

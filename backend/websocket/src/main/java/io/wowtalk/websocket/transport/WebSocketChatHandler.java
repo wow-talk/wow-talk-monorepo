@@ -11,6 +11,8 @@ import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
 import io.wowtalk.transport.TransportMode;
 import io.wowtalk.transport.TransportRouter;
+import io.wowtalk.user.domain.UserId;
+import io.wowtalk.user.service.UserService;
 import io.wowtalk.websocket.error.InvalidWebSocketMessageFormatException;
 import io.wowtalk.websocket.error.UnsupportedWebSocketMessageTypeException;
 import java.net.URI;
@@ -28,10 +30,12 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private static final String ROOM_ID = "roomId";
     private static final String SESSION_ID = "sessionId";
+    private static final String USER_ID = "userId";
 
     private final ChannelService channelService;
     private final ChatService chatService;
     private final TransportRouter transportRouter;
+    private final UserService userService;
     private final WebSocketSessionRegistry sessionRegistry;
     private final WebSocketChatTransport webSocketChatTransport;
     private final ObjectMapper objectMapper;
@@ -40,6 +44,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             ChannelService channelService,
             ChatService chatService,
             TransportRouter transportRouter,
+            UserService userService,
             WebSocketSessionRegistry sessionRegistry,
             WebSocketChatTransport webSocketChatTransport,
             ObjectMapper objectMapper
@@ -47,6 +52,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         this.channelService = channelService;
         this.chatService = chatService;
         this.transportRouter = transportRouter;
+        this.userService = userService;
         this.sessionRegistry = sessionRegistry;
         this.webSocketChatTransport = webSocketChatTransport;
         this.objectMapper = objectMapper;
@@ -61,6 +67,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             sessionRegistry.register(connectionInfo.roomId(), connectionInfo.sessionId(), session);
             session.getAttributes().put(ROOM_ID, connectionInfo.roomId());
             session.getAttributes().put(SESSION_ID, connectionInfo.sessionId());
+            session.getAttributes().put(USER_ID, connectionInfo.userId());
             webSocketChatTransport.sendSystemMessage(
                     session,
                     WebSocketOutboundMessage.connected(connectionInfo.roomId().value(), connectionInfo.sessionId().value())
@@ -76,6 +83,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         try {
             RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID);
             SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID);
+            UserId userId = (UserId) session.getAttributes().get(USER_ID);
             WebSocketInboundMessage inboundMessage = parseInboundMessage(message.getPayload());
 
             if (inboundMessage.type() != WebSocketMessageType.SEND_MESSAGE) {
@@ -85,6 +93,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             ChatMessageResult result = chatService.send(new SendChatMessageCommand(
                     roomId,
                     sessionId,
+                    userId,
                     inboundMessage.payload()
             ));
 
@@ -94,6 +103,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                             result.messageId().value(),
                             result.roomId(),
                             result.sessionId(),
+                            result.senderUserId().value(),
                             result.payload(),
                             result.sentAt()
                     )
@@ -116,12 +126,24 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         Map<String, String> queryParams = parseQueryParams(uri.getQuery());
         String roomId = queryParams.get(ROOM_ID);
         String sessionId = queryParams.get(SESSION_ID);
+        String userId = queryParams.get(USER_ID);
 
         if (roomId == null || roomId.isBlank() || sessionId == null || sessionId.isBlank()) {
             throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
         }
 
-        return new ConnectionInfo(new RoomId(roomId), new SessionId(sessionId));
+        UserId resolvedUserId = resolveUserId(userId, sessionId);
+
+        return new ConnectionInfo(new RoomId(roomId), new SessionId(sessionId), resolvedUserId);
+    }
+
+    private UserId resolveUserId(String userId, String legacySessionId) {
+        if (userId == null || userId.isBlank()) {
+            return userService.createGuest(legacySessionId).userId();
+        }
+        UserId resolvedUserId = new UserId(userId);
+        userService.get(resolvedUserId);
+        return resolvedUserId;
     }
 
     private WebSocketInboundMessage parseInboundMessage(String payload) {
@@ -159,7 +181,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private record ConnectionInfo(
             RoomId roomId,
-            SessionId sessionId
+            SessionId sessionId,
+            UserId userId
     ) {
     }
 }

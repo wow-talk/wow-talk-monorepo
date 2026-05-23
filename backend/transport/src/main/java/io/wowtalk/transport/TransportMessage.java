@@ -6,6 +6,7 @@ public record TransportMessage(
         String messageId,
         RoomId roomId,
         SessionId sessionId,
+        String senderUserId,
         String payload,
         Instant sentAt
 ) {
@@ -19,6 +20,9 @@ public record TransportMessage(
         }
         if (sessionId == null) {
             throw new IllegalArgumentException("세션 ID는 필수입니다.");
+        }
+        if (senderUserId == null || senderUserId.isBlank()) {
+            throw new IllegalArgumentException("발신자 사용자 ID는 필수입니다.");
         }
         if (payload == null || payload.isBlank()) {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");

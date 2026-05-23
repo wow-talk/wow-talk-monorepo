@@ -38,6 +38,7 @@ public class ChatMessageController {
             String messageId,
             String roomId,
             String sessionId,
+            String senderUserId,
             String payload,
             String sentAt
     ) {
@@ -46,6 +47,7 @@ public class ChatMessageController {
                     result.messageId().value(),
                     result.roomId().value(),
                     result.sessionId().value(),
+                    result.senderUserId().value(),
                     result.payload(),
                     result.sentAt().toString()
             );

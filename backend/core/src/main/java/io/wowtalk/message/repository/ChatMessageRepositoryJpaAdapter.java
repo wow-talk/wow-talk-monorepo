@@ -6,6 +6,7 @@ import io.wowtalk.message.domain.MessageId;
 import io.wowtalk.message.domain.MessageStatus;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.SessionId;
+import io.wowtalk.user.domain.UserId;
 import java.util.Comparator;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
@@ -30,6 +31,7 @@ public class ChatMessageRepositoryJpaAdapter implements ChatMessageRepository {
                 chatMessage.messageId().value(),
                 chatMessage.roomId().value(),
                 chatMessage.sessionId().value(),
+                chatMessage.senderUserId().value(),
                 chatMessage.payload(),
                 MessageStatus.ACTIVE,
                 chatMessage.sentAt()
@@ -53,10 +55,15 @@ public class ChatMessageRepositoryJpaAdapter implements ChatMessageRepository {
     }
 
     private ChatMessage toDomain(ChatMessageEntity entity) {
+        String senderUserId = entity.getSenderUserId();
+        if (senderUserId == null || senderUserId.isBlank()) {
+            senderUserId = entity.getSessionId();
+        }
         return new ChatMessage(
                 new MessageId(entity.getMessageId()),
                 new RoomId(entity.getRoomId()),
                 new SessionId(entity.getSessionId()),
+                new UserId(senderUserId),
                 entity.getPayload(),
                 entity.getSentAt()
         );

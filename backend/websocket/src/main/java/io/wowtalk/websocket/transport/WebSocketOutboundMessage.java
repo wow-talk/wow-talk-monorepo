@@ -8,6 +8,7 @@ public record WebSocketOutboundMessage(
         String roomId,
         String sessionId,
         String messageId,
+        String senderUserId,
         String payload,
         String sentAt,
         String code,
@@ -19,6 +20,7 @@ public record WebSocketOutboundMessage(
                 WebSocketMessageType.CONNECTED.name(),
                 roomId,
                 sessionId,
+                null,
                 null,
                 "웹소켓 연결이 완료되었습니다.",
                 null,
@@ -33,6 +35,7 @@ public record WebSocketOutboundMessage(
                 message.roomId().value(),
                 message.sessionId().value(),
                 message.messageId(),
+                message.senderUserId(),
                 message.payload(),
                 message.sentAt().toString(),
                 null,
@@ -43,6 +46,7 @@ public record WebSocketOutboundMessage(
     public static WebSocketOutboundMessage error(ErrorCode errorCode) {
         return new WebSocketOutboundMessage(
                 WebSocketMessageType.ERROR.name(),
+                null,
                 null,
                 null,
                 null,
