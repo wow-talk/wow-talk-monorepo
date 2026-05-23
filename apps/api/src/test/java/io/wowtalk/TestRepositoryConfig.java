@@ -4,6 +4,8 @@ import io.wowtalk.channel.repository.ChannelRepository;
 import io.wowtalk.channel.repository.InMemoryChannelRepository;
 import io.wowtalk.message.repository.ChatMessageRepository;
 import io.wowtalk.message.repository.InMemoryChatMessageRepository;
+import io.wowtalk.room.repository.InMemoryRoomMemberRepository;
+import io.wowtalk.room.repository.RoomMemberRepository;
 import io.wowtalk.user.repository.InMemoryUserRepository;
 import io.wowtalk.user.repository.UserRepository;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -25,5 +27,10 @@ public class TestRepositoryConfig {
     @Bean
     UserRepository userRepository() {
         return new InMemoryUserRepository();
+    }
+
+    @Bean
+    RoomMemberRepository roomMemberRepository() {
+        return new InMemoryRoomMemberRepository();
     }
 }
