@@ -16,9 +16,15 @@ ws://localhost:8080/ws/chat?roomId={roomId}&sessionId={sessionId}
 ws://localhost:8080/ws/chat?roomId={roomId}&connectionId={connectionId}&sessionId={sessionId}&userId={userId}
 ```
 
+v1 서버 응답을 받고 싶은 클라이언트는 `protocolVersion=1`을 추가한다.
+
+```text
+ws://localhost:8080/ws/chat?roomId={roomId}&connectionId={connectionId}&sessionId={sessionId}&userId={userId}&protocolVersion=1
+```
+
 예시:
 ```text
-ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&userId=guest-1
+ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&userId=guest-1&protocolVersion=1
 ```
 
 ## 연결 파라미터
@@ -26,6 +32,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 - `connectionId`: 현재 WebSocket 접속 식별자. 없으면 서버가 생성해서 `CONNECTED` 응답으로 반환한다.
 - `sessionId`: 기존 클라이언트 호환용 세션 식별자. 장기적으로 `connectionId`로 대체한다.
 - `userId`: 발신자 사용자 식별자. 없으면 legacy 호환을 위해 서버가 임시 guest user를 생성한다.
+- `protocolVersion`: `1`이면 서버 -> 클라이언트 메시지를 v1 envelope로 내려준다. 없으면 legacy 응답을 유지한다.
 
 ## 클라이언트 -> 서버
 현재는 legacy `SEND_MESSAGE`와 v1 `CHAT_SEND`를 함께 지원한다.
@@ -60,7 +67,49 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 
 ## 서버 -> 클라이언트
 
-### 1. 연결 성공
+`protocolVersion`이 없으면 legacy 응답을 내려준다.
+
+`protocolVersion=1`이면 v1 envelope를 내려준다.
+
+### v1 연결 성공
+
+```json
+{
+  "version": 1,
+  "type": "CONNECTED",
+  "eventId": "evt-1",
+  "requestId": null,
+  "roomId": "room-1",
+  "occurredAt": "2026-05-24T00:00:00Z",
+  "payload": {
+    "connectionId": "conn-1",
+    "sessionId": "conn-1",
+    "userId": "guest-1"
+  }
+}
+```
+
+### v1 채팅 메시지
+
+```json
+{
+  "version": 1,
+  "type": "CHAT_MESSAGE_CREATED",
+  "eventId": "evt-2",
+  "requestId": "req-1",
+  "roomId": "room-1",
+  "occurredAt": "2026-05-24T00:00:01Z",
+  "payload": {
+    "messageId": "7fdce1d7-8d0d-4f2f-9fa0-75f3df81d3d2",
+    "connectionId": "conn-1",
+    "sessionId": "conn-1",
+    "senderUserId": "guest-1",
+    "text": "안녕하세요"
+  }
+}
+```
+
+### Legacy 연결 성공
 ```json
 {
   "type": "CONNECTED",
@@ -76,7 +125,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 }
 ```
 
-### 2. 채팅 메시지
+### Legacy 채팅 메시지
 ```json
 {
   "type": "CHAT_MESSAGE",
@@ -92,7 +141,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 }
 ```
 
-### 3. 에러
+### Legacy 에러
 ```json
 {
   "type": "ERROR",

@@ -90,11 +90,12 @@
 작업:
 
 - [x] inbound envelope DTO 추가
-- [ ] outbound envelope DTO 추가
+- [x] outbound envelope DTO 추가
 - [x] requestId 수신과 transport 전달 추가
-- [ ] eventId 추가
+- [x] eventId 추가
 - [x] legacy `SEND_MESSAGE`와 v1 `CHAT_SEND` 동시 지원
-- [ ] error envelope 통일
+- [x] protocolVersion=1 연결에 v1 outbound 응답
+- [ ] error envelope requestId 연동
 - [x] protocol parsing test 추가
 
 프론트 영향:

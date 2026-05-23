@@ -159,6 +159,8 @@ WebSocket protocol ping/pong과 별개로, 클라이언트 상태 표시와 late
 
 연결이 수락되었음을 알린다.
 
+현재 WebSocket query string에 `protocolVersion=1`을 붙이면 이 형태로 내려간다.
+
 ```json
 {
   "version": 1,
@@ -177,6 +179,8 @@ WebSocket protocol ping/pong과 별개로, 클라이언트 상태 표시와 late
 ### CHAT_MESSAGE_CREATED
 
 채팅 메시지가 생성되었음을 알린다.
+
+현재 WebSocket query string에 `protocolVersion=1`을 붙이면 이 형태로 내려간다.
 
 ```json
 {
