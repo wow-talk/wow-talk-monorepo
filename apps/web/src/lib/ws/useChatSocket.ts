@@ -54,6 +54,16 @@ export function useChatSocket(
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [log, setLog] = useState<ChatSocketLogEntry[]>([]);
 
+  // React 19 권장: props 변경 시 state 리셋을 effect 안의 setState로 하지 않고,
+  // render 중 직전 키와 비교 → 다르면 즉시 setState. React가 render를 즉시 재시작해 일관 상태를 보장.
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  const currentKey = `${enabled ? "on" : "off"}|${roomId}|${sessionId}`;
+  const [prevKey, setPrevKey] = useState(currentKey);
+  if (prevKey !== currentKey) {
+    setPrevKey(currentKey);
+    setLiveMessages([]);
+  }
+
   const appendLog = useCallback(
     (kind: ChatSocketLogKind, detail: string) => {
       setLog((prev) => [
@@ -72,7 +82,6 @@ export function useChatSocket(
 
     const client = new WsClient();
     clientRef.current = client;
-    setLiveMessages([]);
 
     const unsubscribe = client.on((event) => {
       if (event.type === "status") {

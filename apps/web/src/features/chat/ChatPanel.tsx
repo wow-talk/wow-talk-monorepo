@@ -7,8 +7,8 @@ import { MessageList } from "@/features/chat/MessageList";
 import { SessionBadge } from "@/features/chat/SessionBadge";
 import { useChatHistory } from "@/features/chat/useChatHistory";
 import { useEnsureChannel } from "@/hooks/useEnsureChannel";
-import { lookupCommand } from "@/lib/commands/registry";
 import { parseInput } from "@/lib/commands/parser";
+import { lookupCommand } from "@/lib/commands/registry";
 import { publishInspectorLine } from "@/lib/inspector/bus";
 import { useSessionStore } from "@/stores/sessionStore";
 
@@ -32,6 +32,7 @@ export function ChatPanel({ roomId }: { roomId: string }) {
     roomId,
     channelReady && sessionId ? sessionId : "",
   );
+  const { sendMessage, disconnectSocket } = chat;
 
   const handleSubmit = useCallback(
     (raw: string) => {
@@ -51,7 +52,7 @@ export function ChatPanel({ roomId }: { roomId: string }) {
           {
             roomId,
             sessionId,
-            disconnectSocket: chat.disconnectSocket,
+            disconnectSocket,
           },
           parsed.args,
         );
@@ -59,9 +60,9 @@ export function ChatPanel({ roomId }: { roomId: string }) {
       }
 
       // text
-      chat.sendMessage(parsed.value);
+      sendMessage(parsed.value);
     },
-    [roomId, sessionId, chat.disconnectSocket, chat.sendMessage],
+    [roomId, sessionId, disconnectSocket, sendMessage],
   );
 
   return (

@@ -2,7 +2,6 @@ import { clearHandler } from "@/lib/commands/handlers/clear";
 import { disconnectHandler } from "@/lib/commands/handlers/disconnect";
 import { helpHandler } from "@/lib/commands/handlers/help";
 import { inspectHandler } from "@/lib/commands/handlers/inspect";
-
 import type { CommandDefinition } from "@/lib/commands/types";
 
 /**

@@ -34,6 +34,7 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 ### 00-project-setup
 - [00. 의존성 결정 (2026-05-20)](00-project-setup/00-dependency-decisions.md) — vanilla-extract / TanStack Query / Zustand / Zod / nanoid 5종 선택 근거
 - [02. 환경 변수 단일 진입점 (2026-05-20)](00-project-setup/02-env-and-pnpm.md) — Zod로 parse한 단일 env 객체, NEXT_PUBLIC_ 접두사 동작
+- [03. ESLint 룰 강화 (2026-05-20)](00-project-setup/03-eslint-rules.md) — no-explicit-any / import-order / no-default-export / no-restricted-imports와 라우팅 파일 예외
 
 ### 10-nextjs
 - [01. RSC vs Client Component (2026-05-20)](10-nextjs/01-rsc-vs-client.md) — use client 경계, layout RSC + Provider 분리, use(params) 패턴

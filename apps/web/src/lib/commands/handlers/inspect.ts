@@ -1,7 +1,7 @@
+import type { CommandHandler } from "@/lib/commands/types";
 import { publishInspectorLine } from "@/lib/inspector/bus";
 import { useInspectorStore } from "@/stores/inspectorStore";
 
-import type { CommandHandler } from "@/lib/commands/types";
 
 export const inspectHandler: CommandHandler = () => {
   const willOpen = !useInspectorStore.getState().open;

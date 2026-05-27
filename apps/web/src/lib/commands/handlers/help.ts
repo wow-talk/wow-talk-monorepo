@@ -1,7 +1,7 @@
 import { commands } from "@/lib/commands/registry";
+import type { CommandHandler } from "@/lib/commands/types";
 import { publishInspectorLine } from "@/lib/inspector/bus";
 
-import type { CommandHandler } from "@/lib/commands/types";
 
 export const helpHandler: CommandHandler = () => {
   publishInspectorLine({ kind: "system", text: "available commands:" });
