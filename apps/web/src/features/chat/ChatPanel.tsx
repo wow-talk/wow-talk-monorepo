@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { ChatComposer } from "@/features/chat/ChatComposer";
 import { MessageList } from "@/features/chat/MessageList";
 import { SessionBadge } from "@/features/chat/SessionBadge";
 import { useChatHistory } from "@/features/chat/useChatHistory";
 import { useEnsureChannel } from "@/hooks/useEnsureChannel";
+import { lookupCommand } from "@/lib/commands/registry";
+import { parseInput } from "@/lib/commands/parser";
+import { publishInspectorLine } from "@/lib/inspector/bus";
 import { useSessionStore } from "@/stores/sessionStore";
 
 import * as styles from "./ChatPanel.css";
@@ -18,16 +21,47 @@ export function ChatPanel({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!roomId) return;
     ensure.mutate(roomId);
-    // ensure는 idempotent라 roomId 변경 시에만 실행. ensure 자체 참조는 stable.
+    // ensure.mutate 자체는 stable. roomId 변경 시에만 실행.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
-  const ready = ensure.isSuccess || ensure.isIdle === false;
   const channelReady = ensure.isSuccess;
+  const ready = ensure.isSuccess || ensure.isError;
 
   const chat = useChatHistory(
     roomId,
     channelReady && sessionId ? sessionId : "",
+  );
+
+  const handleSubmit = useCallback(
+    (raw: string) => {
+      const parsed = parseInput(raw);
+      if (parsed.kind === "empty") return;
+
+      if (parsed.kind === "command") {
+        const cmd = lookupCommand(parsed.token);
+        if (!cmd) {
+          publishInspectorLine({
+            kind: "system",
+            text: `[unknown command] ${parsed.token}`,
+          });
+          return;
+        }
+        cmd.handler(
+          {
+            roomId,
+            sessionId,
+            disconnectSocket: chat.disconnectSocket,
+          },
+          parsed.args,
+        );
+        return;
+      }
+
+      // text
+      chat.sendMessage(parsed.value);
+    },
+    [roomId, sessionId, chat.disconnectSocket, chat.sendMessage],
   );
 
   return (
@@ -52,7 +86,9 @@ export function ChatPanel({ roomId }: { roomId: string }) {
         {!ready || chat.isHistoryPending ? (
           <div className={styles.empty}>준비 중…</div>
         ) : chat.messages.length === 0 ? (
-          <div className={styles.empty}>첫 메시지를 남겨보세요.</div>
+          <div className={styles.empty}>
+            첫 메시지를 남겨보세요. <code>/help</code> 도 한 번 쳐보세요.
+          </div>
         ) : (
           <MessageList messages={chat.messages} />
         )}
@@ -60,7 +96,7 @@ export function ChatPanel({ roomId }: { roomId: string }) {
 
       <ChatComposer
         disabled={!channelReady || chat.socketStatus !== "open"}
-        onSend={(text) => chat.sendMessage(text)}
+        onSubmit={handleSubmit}
       />
     </main>
   );

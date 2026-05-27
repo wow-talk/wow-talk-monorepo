@@ -56,3 +56,9 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 ### 60-state-data
 - [00. TanStack Query 기초 (2026-05-20)](60-state-data/00-tanstack-query-basics.md) — useQuery / useMutation / queryKey / staleTime / v5 isPending 변경점
 - [02. 서버 상태 vs 클라이언트 상태 (2026-05-20)](60-state-data/02-server-state-vs-client-state.md) — 출처별 도구 분리, REST 캐시 + WS 누적 합치는 패턴
+
+### 70-architecture
+- [00. 슬래시 커맨드 흐름 (2026-05-20)](70-architecture/00-slash-command-flow.md) — 입력 → parser → registry → handler → bus → store → UI 전체 데이터 흐름
+
+### 90-decisions
+- [ADR 0004 — 슬래시 커맨드를 inspector 트리거로 채택 (2026-05-20)](90-decisions/0004-slash-command-trigger.md) — 4개 후보 비교, 채택 사유와 트레이드오프
