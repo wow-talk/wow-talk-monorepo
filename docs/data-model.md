@@ -174,22 +174,11 @@ EventId
 
 ## 저장소 방향
 
-### RDS/Postgres에 적합한 데이터
+운영 저장소의 기본 방향은 DynamoDB다.
 
-관계와 관리가 중요한 데이터:
+기존 JPA/Postgres 구현은 로컬 MVP와 빠른 검증을 위한 현재 구현으로 보고, 운영 구조는 DynamoDB access pattern을 기준으로 재설계한다.
 
-```txt
-User
-Room
-RoomMember
-Room settings
-Permission
-Moderation metadata
-```
-
-### DynamoDB에 적합한 데이터
-
-append-heavy, time-ordered access pattern이 명확한 데이터:
+DynamoDB에 특히 잘 맞는 데이터는 append-heavy, time-ordered access pattern이 명확한 데이터다.
 
 ```txt
 ChatMessage
@@ -205,52 +194,7 @@ Game event log
 - 어떤 채팅 메시지는 게임 액션을 유발할 수 있다.
 - `sourceMessageId`로 연결하면 나중에 “이 게임 이벤트가 어떤 채팅에서 나왔는지” 추적할 수 있다.
 
-## DynamoDB 메시지 테이블 후보
-
-테이블명:
-
-```txt
-wowtalk-messages
-```
-
-키:
-
-```txt
-PK = ROOM#<roomId>
-SK = MSG#<sentAtEpochMillis>#<messageId>
-```
-
-아이템 예:
-
-```json
-{
-  "pk": "ROOM#lobby",
-  "sk": "MSG#1779540000000#msg-1",
-  "messageId": "msg-1",
-  "roomId": "lobby",
-  "senderUserId": "guest-1",
-  "text": "안녕하세요",
-  "status": "ACTIVE",
-  "sentAt": "2026-05-23T13:00:00Z"
-}
-```
-
-지원 access pattern:
-
-```txt
-방의 최근 메시지 N개 조회
-방의 특정 시각 이후 메시지 조회
-메시지 단건 조회
-```
-
-메시지 단건 조회가 자주 필요하면 GSI를 추가한다.
-
-```txt
-GSI1PK = MESSAGE#<messageId>
-GSI1SK = ROOM#<roomId>
-```
-
-## DynamoDB 게임 이벤트 테이블 후보
+## DynamoDB room event stream 후보
 
 테이블명:
 
@@ -262,17 +206,50 @@ wowtalk-room-events
 
 ```txt
 PK = ROOM#<roomId>
-SK = EVT#<sequence>#<eventId>
+SK = EVT#<occurredAtEpochMillis>#<eventId>
 ```
 
-게임은 순서가 중요하므로 `sequence`를 명시적으로 둘지 검토한다.
+채팅 메시지 아이템 예:
+
+```json
+{
+  "pk": "ROOM#lobby",
+  "sk": "EVT#1779540000000#evt-1",
+  "eventId": "evt-1",
+  "eventType": "CHAT_MESSAGE_CREATED",
+  "messageId": "msg-1",
+  "roomId": "lobby",
+  "actorUserId": "guest-1",
+  "payload": {
+    "text": "안녕하세요"
+  },
+  "occurredAt": "2026-05-23T13:00:00Z"
+}
+```
+
+지원 access pattern:
+
+```txt
+방의 최근 이벤트 N개 조회
+방의 특정 시각 이후 이벤트 조회
+방 입장 시 채팅/게임 이벤트 복원
+```
+
+메시지 단건 조회가 자주 필요하면 GSI를 추가한다.
+
+```txt
+GSI1PK = MESSAGE#<messageId>
+GSI1SK = ROOM#<roomId>
+```
+
+게임은 순서가 중요하므로 timestamp만으로 충분한지, 별도 `sequence`를 둘지 검토한다.
 
 아이템 예:
 
 ```json
 {
   "pk": "ROOM#game-1",
-  "sk": "EVT#00000042#evt-1",
+  "sk": "EVT#1779540002000#evt-2",
   "eventId": "evt-1",
   "gameSessionId": "game-session-1",
   "eventType": "GAME_ACTION_ACCEPTED",
@@ -285,6 +262,28 @@ SK = EVT#<sequence>#<eventId>
   "occurredAt": "2026-05-23T13:00:02Z"
 }
 ```
+
+## DynamoDB main table 후보
+
+유저, 방, 멤버십처럼 현재 상태 조회가 중요한 데이터는 별도 main table로 시작한다.
+
+테이블명:
+
+```txt
+wowtalk-main
+```
+
+아이템 후보:
+
+```txt
+USER#<userId>
+ROOM#<roomId>
+ROOM#<roomId> / MEMBER#<userId>
+GAME#<gameSessionId>
+GAME#<gameSessionId> / PLAYER#<userId>
+```
+
+처음부터 single-table design을 강제하지 않는다. 다만 access pattern을 문서화하고 필요한 경우 GSI를 추가한다.
 
 ## 멀티 인스턴스 연결 모델
 
@@ -327,7 +326,7 @@ broker 후보:
 4. guest user 모델 추가
 5. room/member 모델 추가
 6. protocol envelope와 requestId/eventId 도입
-7. message repository DynamoDB 구현 실험
+7. room event stream DynamoDB 구현 실험
 8. 멀티 인스턴스 broadcast 설계
 
 ## 당장 하지 않을 것

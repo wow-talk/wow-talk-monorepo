@@ -10,3 +10,9 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+
+wowtalk:
+  dynamodb:
+    endpoint: http://localhost:8000
+    region: ap-northeast-2
+    room-events-table: wowtalk-room-events-local

@@ -12,6 +12,10 @@
     "test:api": "./gradlew test",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
+    "ddb:up": "docker compose up -d dynamodb-local",
+    "ddb:down": "docker compose stop dynamodb-local",
+    "local:up": "docker compose up -d postgres dynamodb-local",
+    "local:down": "docker compose down",
     "tf:fmt": "terraform -chdir=infra/terraform fmt -recursive",
     "tf:validate:dev": "terraform -chdir=infra/terraform/environments/dev validate",
     "tf:validate:prod": "terraform -chdir=infra/terraform/environments/prod validate"

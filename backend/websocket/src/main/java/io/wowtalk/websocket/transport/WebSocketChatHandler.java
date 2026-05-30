@@ -8,11 +8,11 @@ import io.wowtalk.message.dto.SendChatMessageCommand;
 import io.wowtalk.message.service.ChatService;
 import io.wowtalk.room.service.RoomMemberService;
 import io.wowtalk.transport.ConnectionId;
+import io.wowtalk.transport.RealtimeEventPublisher;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
 import io.wowtalk.transport.TransportMode;
-import io.wowtalk.transport.TransportRouter;
 import io.wowtalk.user.domain.UserId;
 import io.wowtalk.user.service.UserService;
 import java.net.URI;
@@ -35,7 +35,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private final ChannelService channelService;
     private final ChatService chatService;
-    private final TransportRouter transportRouter;
+    private final RealtimeEventPublisher realtimeEventPublisher;
     private final UserService userService;
     private final RoomMemberService roomMemberService;
     private final WebSocketSessionRegistry sessionRegistry;
@@ -45,7 +45,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     public WebSocketChatHandler(
             ChannelService channelService,
             ChatService chatService,
-            TransportRouter transportRouter,
+            RealtimeEventPublisher realtimeEventPublisher,
             UserService userService,
             RoomMemberService roomMemberService,
             WebSocketSessionRegistry sessionRegistry,
@@ -54,7 +54,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     ) {
         this.channelService = channelService;
         this.chatService = chatService;
-        this.transportRouter = transportRouter;
+        this.realtimeEventPublisher = realtimeEventPublisher;
         this.userService = userService;
         this.roomMemberService = roomMemberService;
         this.sessionRegistry = sessionRegistry;
@@ -101,7 +101,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                     inboundMessage.payload()
             ));
 
-            transportRouter.route(TransportMode.WEBSOCKET).broadcast(
+            realtimeEventPublisher.publish(
                     result.roomId(),
                     new TransportMessage(
                             result.messageId().value(),

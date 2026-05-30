@@ -2,15 +2,18 @@
 
 ## 목표
 
-Wow Talk 백엔드는 단순 채팅 서버가 아니라, 브라우저 WebSocket 진입점 위에서 내부 전송 계층과 프로토콜을 바꿔가며 실험할 수 있는 실시간 플랫폼을 목표로 한다.
+Wow Talk 백엔드는 단순 채팅 서버가 아니라, 채팅방 안에서 social deduction / mission game을 진행할 수 있는 실시간 플랫폼을 목표로 한다.
+
+브라우저 클라이언트의 기본 realtime 진입점은 WebSocket이다. Raw TCP는 브라우저 주 통신 방식이 아니라 전송 계층 비교와 별도 클라이언트 실험을 위한 확장 후보로 둔다.
 
 최종적으로는 다음 요구를 만족해야 한다.
 
 - 기본 채팅이 안정적으로 동작한다.
 - WebSocket 클라이언트가 동일한 의미의 메시지 계약을 사용한다.
-- 서버 내부에서는 WebSocket, Raw TCP, 이후 다른 transport로 확장할 수 있다.
+- 서버 내부에서는 WebSocket을 기본 transport로 사용하되 Raw TCP, 이후 다른 transport로 확장할 수 있다.
 - 채팅 위에 게임 이벤트를 올릴 수 있을 만큼 낮은 지연과 명확한 프로토콜을 가진다.
-- AWS 컨테이너 환경에서 여러 API 인스턴스로 확장할 수 있다.
+- AWS ECS/Fargate 환경에서 API task 3대 이상으로 확장할 수 있다.
+- 운영 저장소는 DynamoDB 중심으로 설계한다.
 
 ## 현재 상태
 
@@ -115,21 +118,27 @@ Raw TCP는 브라우저 직접 지원 대상이 아니라, 서버 내부 실험 
 
 ### DB
 
-로컬 개발은 Docker Compose로 Postgres를 유지한다.
+운영 저장소의 기본 방향은 DynamoDB다.
 
-운영 후보는 두 갈래다.
+이 프로젝트는 RDS 기반 CRUD 서비스보다, room 단위 채팅/게임 이벤트 stream을 다루는 실시간 서비스에 가깝다. 따라서 운영에서는 유저, 방, 멤버십, 채팅 메시지, 게임 이벤트를 DynamoDB access pattern 기준으로 설계한다.
 
-- RDS PostgreSQL: 유저, 방, 멤버십, 관리성 데이터
-- DynamoDB: 채팅 메시지, 게임 이벤트, presence/event stream
-
-채팅 메시지는 DynamoDB와 잘 맞는다. 핵심 access pattern이 “특정 room의 최근 메시지 조회”이기 때문이다.
+채팅 메시지와 게임 이벤트는 DynamoDB와 잘 맞는다. 핵심 access pattern이 “특정 room의 최근 이벤트 조회”이기 때문이다.
 
 ```txt
 PK = ROOM#<roomId>
-SK = MSG#<timestamp>#<messageId>
+SK = EVT#<timestamp>#<eventId>
 ```
 
-단, 처음부터 모든 데이터를 DynamoDB로 옮기지 않는다. 먼저 메시지 저장소를 repository interface 뒤에서 교체 가능하게 만든다.
+로컬 개발은 현재 Postgres/JPA로 빠르게 검증할 수 있지만, 목표 구조는 DynamoDB adapter를 repository interface 뒤에 추가해 전환하는 것이다.
+
+중요한 구분:
+
+```txt
+DynamoDB = 영속 저장소
+Realtime broker = 서버 간 실시간 fan-out
+```
+
+DynamoDB는 메시지/이벤트 저장에는 적합하지만, ECS API task 3대 이상에서 WebSocket broadcast를 즉시 전파하는 통로로만 쓰기에는 부족하다. 서버 간 fan-out은 Redis Pub/Sub, Kafka, SNS/SQS, EventBridge, DynamoDB Streams 중 별도 선택이 필요하다.
 
 ### AWS 배포
 
@@ -149,7 +158,9 @@ ALB
   /api, /ws -> api service
 
 Data
-  RDS PostgreSQL or DynamoDB
+  DynamoDB
+Realtime fan-out
+  Redis Pub/Sub or AWS managed broker
   Secrets Manager / SSM Parameter Store
 ```
 
@@ -191,23 +202,23 @@ guest user 생성
 
 ### P3. 저장소 확장
 
-- 현재 JPA repository 유지
-- message repository를 DynamoDB 구현으로 추가 가능하게 준비
-- 메시지 조회 access pattern 문서화
-- local DynamoDB 도입 여부 결정
+- 운영 목표 저장소를 DynamoDB로 확정
+- room event stream access pattern 문서화
+- message/event repository를 DynamoDB 구현으로 추가
+- local DynamoDB 또는 AWS dev table 검증 방식 결정
 
 ### P4. 멀티 인스턴스 broadcast
 
-단일 API 인스턴스에서는 현재 registry만으로 가능하다.
+ECS API task 3대 이상을 전제로 한다.
 
-ECS scale-out을 고려하면 다음 중 하나가 필요하다.
+현재 `WebSocketSessionRegistry`는 단일 JVM 안에서만 동작한다. scale-out을 고려하면 다음 중 하나가 필요하다.
 
 - Redis Pub/Sub
 - DynamoDB Streams
 - SNS/SQS
 - 별도 realtime gateway
 
-초기에는 Redis Pub/Sub이 가장 단순하다. AWS managed 성격을 강하게 가져가려면 DynamoDB Streams 또는 SNS/SQS를 검토한다.
+초기 구현 난이도와 WebSocket fan-out 지연을 기준으로는 Redis Pub/Sub이 가장 단순하다. 비용과 AWS managed 성격을 강하게 가져가려면 DynamoDB Streams, SNS/SQS, EventBridge를 함께 검토한다.
 
 ### P5. 게임 이벤트 레이어
 
@@ -255,13 +266,16 @@ Room
 
 ## 다음 구현 제안
 
-가장 먼저 할 일은 `messageId`와 user/session 모델을 잡는 것이다.
+현재 `messageId`, `UserId`, `ConnectionId`, guest user, room member, protocol envelope 일부는 이미 구현되어 있다.
 
-1. `UserId`, `MessageId` value object 추가
-2. `ChatMessage`에 `messageId`, `senderUserId` 추가
-3. 임시 guest user 발급 API 추가
-4. WebSocket 연결의 `sessionId`를 connection 식별자로만 사용
-5. protocol envelope 초안 구현
-6. 채팅 입력을 게임 command로 해석할 수 있는 확장 지점 설계
+다음 우선순위는 scale-out과 DynamoDB 전환을 위한 구조 정리다.
 
-이 순서가 좋은 이유는 인증, DynamoDB, 게임 이벤트가 모두 user/message/protocol의 안정된 기준 위에 올라가기 때문이다.
+1. ECS 3대 이상 기준 realtime scale-out 문서 확정
+2. `WebSocketSessionRegistry`를 local connection registry로 명확히 제한
+3. `RealtimeEventPublisher` 추상화 추가
+4. local publisher로 기존 단일 서버 동작 유지
+5. DynamoDB room event stream 저장소 설계 및 adapter 초안 구현
+6. broker 후보(Redis Pub/Sub, Kafka, SNS/SQS, EventBridge, DynamoDB Streams) 비용/복잡도 비교
+7. 선택한 broker로 multi-instance broadcast PoC 구현
+
+이 순서가 좋은 이유는 ECS task를 3대 이상으로 늘리는 상황에서도 WebSocket 연결과 room event 전파 책임을 분리할 수 있기 때문이다.
