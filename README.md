@@ -54,6 +54,7 @@ Frontend/backend shared contracts live in:
 - [docs/websocket-api.md](docs/websocket-api.md)
 - [docs/realtime-protocol-v1.md](docs/realtime-protocol-v1.md)
 - [docs/realtime-scaleout.md](docs/realtime-scaleout.md)
+- [docs/team-workflow.md](docs/team-workflow.md)
 
 ## AWS deployment direction
 
