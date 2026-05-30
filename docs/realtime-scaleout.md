@@ -255,12 +255,18 @@ RedisRealtimeEventSubscriber
 
 로컬에서 API 인스턴스를 여러 개 띄워 검증한다.
 
+기본 로컬 의존성:
+
+```bash
+pnpm local:up
+```
+
 ```txt
 API-1 localhost:8081
 API-2 localhost:8082
 API-3 localhost:8083
 Redis localhost:6379
-DynamoDB Local or AWS dev DynamoDB
+DynamoDB Local localhost:8000
 ```
 
 검증 시나리오:

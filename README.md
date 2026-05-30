@@ -19,7 +19,7 @@ docker          Production Dockerfiles
 
 ```bash
 pnpm install
-pnpm db:up
+pnpm local:up
 pnpm dev:api
 pnpm dev:web
 ```
@@ -31,7 +31,7 @@ NEXT_PUBLIC_API_BASE=http://localhost:8080
 NEXT_PUBLIC_WS_BASE=ws://localhost:8080
 ```
 
-The backend defaults to the `local` Spring profile and currently uses the Postgres service in `compose.yaml` for local MVP development. The target production storage direction is DynamoDB.
+The backend defaults to the `local` Spring profile. Local MVP persistence still uses Postgres, and DynamoDB Local is available for the upcoming room event storage adapter.
 
 ## Build
 
