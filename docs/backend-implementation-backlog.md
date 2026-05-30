@@ -145,14 +145,16 @@
 
 목표:
 
-RDS와 DynamoDB 역할을 분리할 준비를 한다.
+DynamoDB 중심 저장소로 전환할 준비를 한다.
 
 작업:
 
-- [ ] message repository access pattern 확정
-- [ ] local DynamoDB compose 추가 여부 결정
-- [ ] DynamoDB repository PoC
-- [ ] RDS/DynamoDB 혼합 운영 시 transaction boundary 정리
+- [ ] room event stream access pattern 확정
+- [ ] `wowtalk-room-events` 테이블 키 설계 확정
+- [ ] `wowtalk-main` 테이블 또는 초기 분리 테이블 전략 결정
+- [ ] local DynamoDB 또는 AWS dev table 검증 방식 결정
+- [ ] ChatMessage / GameEvent DynamoDB repository PoC
+- [ ] 기존 JPA/Postgres 구현의 유지 범위 결정
 
 프론트 영향:
 
@@ -163,14 +165,17 @@ RDS와 DynamoDB 역할을 분리할 준비를 한다.
 
 목표:
 
-ECS에서 API 서버를 여러 대 띄워도 broadcast가 된다.
+ECS에서 API 서버를 3대 이상 띄워도 WebSocket broadcast가 된다.
 
 작업:
 
 - [ ] serverInstanceId 도입
-- [ ] broker 후보 결정
-- [ ] Redis Pub/Sub 또는 AWS managed broker PoC
+- [ ] `WebSocketSessionRegistry`를 local connection registry로 제한
+- [ ] `RealtimeEventPublisher` 추상화 추가
+- [ ] broker 후보 비용/복잡도 비교
+- [ ] Redis Pub/Sub, Kafka, SNS/SQS, EventBridge, DynamoDB Streams 중 PoC 후보 결정
 - [ ] local sessions + remote event bridge 구조 구현
+- [ ] API 3개 인스턴스 로컬 broadcast 테스트 추가
 
 프론트 영향:
 
@@ -179,21 +184,42 @@ ECS에서 API 서버를 여러 대 띄워도 broadcast가 된다.
 
 ## 바로 다음 작업
 
-다음 구현은 Milestone 1부터 시작한다.
+현재 코드 기준으로 Milestone 1~4의 핵심 기반은 상당 부분 구현되어 있다.
 
-추천 첫 PR:
+추천 다음 PR 1:
 
 ```txt
-feat(message): add message id to chat messages
+docs: 실시간 스케일아웃 구조 정리
 ```
 
 포함 범위:
 
-- `MessageId` value object
-- DB entity field
-- JPA migration은 아직 없으므로 Hibernate update 기준 동작 확인
-- REST response field
-- WebSocket outbound field
-- 테스트 수정
+- ECS API task 3대 이상 기준 WebSocket 한계 정리
+- DynamoDB와 realtime broker 역할 분리
+- Redis/Kafka/SNS/SQS/EventBridge/DynamoDB Streams 후보 비교
+- 로컬 scale-out 테스트 방향 정리
 
-이 작업은 프론트 영향이 작고, 이후 user/protocol/game event의 기반이 된다.
+추천 다음 PR 2:
+
+```txt
+feat(realtime): broadcast publisher 추상화 추가
+```
+
+포함 범위:
+
+- `RealtimeEventPublisher` 인터페이스
+- local publisher 구현
+- 기존 WebSocket broadcast를 publisher 경유로 변경
+- 기존 단일 서버 동작 보존 테스트
+
+추천 다음 PR 3:
+
+```txt
+feat(storage): DynamoDB room event 저장소 초안 추가
+```
+
+포함 범위:
+
+- DynamoDB item schema
+- room event stream 저장/조회 adapter
+- ChatMessage 저장소 전환 PoC

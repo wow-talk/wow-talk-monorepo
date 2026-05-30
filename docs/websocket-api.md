@@ -174,7 +174,8 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 5. 같은 방에만 `CHAT_MESSAGE`가 오는지 확인
 
 ## 비고
-- 현재 로컬 프로필은 Postgres 기반 JPA 저장소를 사용한다.
+- 현재 로컬 프로필은 Postgres 기반 JPA 저장소를 사용한다. 운영 목표 저장소는 DynamoDB다.
 - 이 문서는 현재 구현된 WebSocket 계약을 설명한다.
 - 장기 프로토콜 방향은 [realtime-protocol-v1.md](./realtime-protocol-v1.md)를 기준으로 한다.
+- ECS API task 3대 이상 scale-out 방향은 [realtime-scaleout.md](./realtime-scaleout.md)를 기준으로 한다.
 - 이후 `Raw TCP`를 추가하더라도 메시지 의미와 유스케이스는 최대한 동일하게 유지한다.

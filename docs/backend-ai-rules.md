@@ -2,8 +2,11 @@
 
 ## 1. 프로젝트 정체성
 - 이 프로젝트는 `wow-talk.io` 백엔드다.
-- 이 프로젝트의 핵심 목적은 채팅 기능 자체가 아니라 `WebSocket`과 `Raw TCP` 전송 계층을 비교할 수 있는 구조를 만드는 것이다.
-- 모든 구현과 설계 판단은 "채팅 서비스 구현"보다 "전송 계층 비교 구조"에 우선순위를 둔다.
+- 이 프로젝트의 핵심 목적은 채팅방 안에서 진행되는 social deduction / mission game을 위한 실시간 백엔드 구조를 만드는 것이다.
+- WebSocket은 브라우저 클라이언트의 기본 realtime 진입점이다.
+- `Raw TCP`는 브라우저용 주 통신 방식이 아니라 전송 계층 비교와 별도 클라이언트 실험을 위한 확장 후보로 둔다.
+- 운영 구조는 ECS/Fargate API task 3대 이상, DynamoDB 중심 저장소, 서버 간 realtime event 전파를 전제로 설계한다.
+- 모든 구현과 설계 판단은 단일 서버 데모보다 multi-instance realtime, DynamoDB access pattern, 모듈 경계 유지에 우선순위를 둔다.
 
 ## 2. 가장 중요한 판단 원칙
 - 해결을 위한 해결을 하지 않는다.
@@ -32,6 +35,7 @@
   - DTO
 - `wowtalk-transport`
   - `ChatTransport` 인터페이스
+  - `RealtimeEventPublisher` 인터페이스
   - `TransportMessage`
   - `TransportMode`
   - `SessionId`
@@ -48,8 +52,10 @@
 - `wowtalk-transport`는 추상화 계층만 제공한다.
 - `wowtalk-rawtcp`, `wowtalk-websocket`은 `wowtalk-transport`를 구현하는 모듈이다.
 - 의존성은 반드시 안쪽 정책이 바깥 구현을 모르도록 유지한다.
-- 구체 구현 선택은 `TransportRouter` 같은 조합 계층에서 처리한다.
+- 구체 구현 선택은 `TransportRouter`, realtime publisher adapter 같은 조합 계층에서 처리한다.
 - `ChatService`는 transport 구현체가 아니라 추상화에 의존해야 한다.
+- `WebSocketSessionRegistry`는 전체 방 상태가 아니라 현재 API task에 붙은 local connection registry로만 취급한다.
+- multi-instance broadcast는 Redis Pub/Sub, Kafka, SNS/SQS, EventBridge, DynamoDB Streams 등 별도 broker 후보를 통해 처리한다.
 
 ## 6. 패키지 구조 원칙
 - 패키지는 기술 기준보다 도메인 기준으로 구성한다.
@@ -83,6 +89,9 @@ message/
 - DTO는 외부 입출력 전용 모델로 사용한다.
 - 채팅방마다 `transportMode`를 선택할 수 있어야 한다.
 - transport 구현체 교체가 core 수정으로 이어지면 구조가 잘못된 것으로 본다.
+- 운영 저장소는 DynamoDB access pattern을 기준으로 설계한다.
+- DynamoDB는 영속 저장소이고, 서버 간 WebSocket fan-out은 별도 realtime event broker 책임으로 분리한다.
+- API 서버 메모리에 global room state, global game state, 전체 presence를 두지 않는다.
 
 ## 8. 에러 처리 원칙
 - 모든 예외는 공통 방식으로 처리한다.

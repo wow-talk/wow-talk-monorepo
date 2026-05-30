@@ -31,7 +31,7 @@ NEXT_PUBLIC_API_BASE=http://localhost:8080
 NEXT_PUBLIC_WS_BASE=ws://localhost:8080
 ```
 
-The backend defaults to the `local` Spring profile and uses the Postgres service in `compose.yaml`.
+The backend defaults to the `local` Spring profile and currently uses the Postgres service in `compose.yaml` for local MVP development. The target production storage direction is DynamoDB.
 
 ## Build
 
@@ -49,10 +49,43 @@ apps/web/docs  Frontend implementation notes and learning records
 
 Frontend/backend shared contracts live in:
 
+- [docs/team-workflow.md](docs/team-workflow.md)
 - [docs/frontend-backend-contract.md](docs/frontend-backend-contract.md)
 - [docs/websocket-api.md](docs/websocket-api.md)
 - [docs/realtime-protocol-v1.md](docs/realtime-protocol-v1.md)
+- [docs/realtime-scaleout.md](docs/realtime-scaleout.md)
 
 ## AWS deployment direction
 
-The target shape is separate container images for `web` and `api`, pushed to ECR and deployed as separate ECS/Fargate services behind an ALB. PostgreSQL should be managed with RDS, with credentials injected through Secrets Manager or SSM Parameter Store.
+The target shape is separate container images for `web` and `api`, pushed to ECR and deployed as separate ECS/Fargate services behind an ALB.
+
+The backend should assume multiple API tasks from the beginning.
+
+```txt
+ALB
+  /      -> web service
+  /api   -> api service
+  /ws    -> api service
+
+api service
+  desired count >= 3
+```
+
+Production storage direction:
+
+```txt
+DynamoDB
+  user / room / member state
+  room event stream
+  chat messages
+  game events
+```
+
+Realtime scale-out direction:
+
+```txt
+WebSocket connections are local to each API task.
+Room events must be published through a realtime broker so every API task can broadcast to its local sockets.
+```
+
+See [docs/realtime-scaleout.md](docs/realtime-scaleout.md) for the scale-out design.
