@@ -14,8 +14,6 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 public class WebSocketChatTransport implements ChatTransport {
 
-    public static final String PROTOCOL_VERSION_ATTRIBUTE = "protocolVersion";
-
     private final WebSocketSessionRegistry sessionRegistry;
     private final ObjectMapper objectMapper;
 
@@ -61,7 +59,7 @@ public class WebSocketChatTransport implements ChatTransport {
     }
 
     public boolean usesProtocolV1(WebSocketSession session) {
-        return "1".equals(String.valueOf(session.getAttributes().get(PROTOCOL_VERSION_ATTRIBUTE)));
+        return WebSocketProtocol.VERSION_1.equals(String.valueOf(session.getAttributes().get(WebSocketProtocol.PROTOCOL_VERSION_ATTRIBUTE)));
     }
 
     private void send(WebSocketSession session, Object outboundChatMessage) {

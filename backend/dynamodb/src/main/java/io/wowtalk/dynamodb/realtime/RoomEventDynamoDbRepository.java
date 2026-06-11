@@ -22,9 +22,15 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 @ConditionalOnProperty(prefix = "wowtalk.dynamodb", name = "enabled", havingValue = "true")
 public class RoomEventDynamoDbRepository implements RoomEventRepository {
 
+    /*
+     * 방 이벤트는 채팅 메시지와 별도 stream 테이블에 저장한다.
+     * 이후 게임/시스템 이벤트가 늘어나도 MVP 채팅 메시지 테이블과 독립적으로 확장하기 위해서다.
+     */
     static final String PK = "pk";
     static final String SK = "sk";
 
+    private static final String ROOM_PREFIX = "ROOM#";
+    private static final String EVENT_PREFIX = "EVT#";
     private static final String EVENT_ID = "eventId";
     private static final String ROOM_ID = "roomId";
     private static final String EVENT_TYPE = "eventType";
@@ -53,7 +59,7 @@ public class RoomEventDynamoDbRepository implements RoomEventRepository {
     public List<RoomEvent> findRecentByRoomId(RoomId roomId, int limit) {
         Map<String, AttributeValue> values = Map.of(
                 ":pk", AttributeValue.fromS(partitionKey(roomId)),
-                ":skPrefix", AttributeValue.fromS("EVT#")
+                ":skPrefix", AttributeValue.fromS(EVENT_PREFIX)
         );
 
         return dynamoDbClient.query(QueryRequest.builder()
@@ -98,10 +104,10 @@ public class RoomEventDynamoDbRepository implements RoomEventRepository {
     }
 
     private String partitionKey(RoomId roomId) {
-        return "ROOM#" + roomId.value();
+        return ROOM_PREFIX + roomId.value();
     }
 
     private String sortKey(RoomEvent roomEvent) {
-        return "EVT#" + roomEvent.occurredAt().toEpochMilli() + "#" + roomEvent.eventId().value();
+        return EVENT_PREFIX + roomEvent.occurredAt().toEpochMilli() + "#" + roomEvent.eventId().value();
     }
 }

@@ -54,7 +54,7 @@ public class ChatMessageDynamoDbRepository implements ChatMessageRepository {
         return dynamoDbClient.scan(ScanRequest.builder()
                         .tableName(DynamoDbTableNames.mainTable(properties))
                         .filterExpression("begins_with(sk, :skPrefix)")
-                        .expressionAttributeValues(Map.of(":skPrefix", AttributeValue.fromS("MSG#")))
+                        .expressionAttributeValues(Map.of(":skPrefix", AttributeValue.fromS(DynamoDbKeys.MESSAGE_PREFIX)))
                         .build())
                 .items()
                 .stream()
@@ -70,7 +70,7 @@ public class ChatMessageDynamoDbRepository implements ChatMessageRepository {
                         .keyConditionExpression("pk = :pk AND begins_with(sk, :skPrefix)")
                         .expressionAttributeValues(Map.of(
                                 ":pk", AttributeValue.fromS(DynamoDbKeys.roomPk(roomId)),
-                                ":skPrefix", AttributeValue.fromS("MSG#")
+                                ":skPrefix", AttributeValue.fromS(DynamoDbKeys.MESSAGE_PREFIX)
                         ))
                         .scanIndexForward(false)
                         .limit(limit)

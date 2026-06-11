@@ -95,6 +95,7 @@ apps/web/docs  프론트엔드 구현 기록
 - [docs/websocket-api.md](docs/websocket-api.md)
 - [docs/realtime-protocol-v1.md](docs/realtime-protocol-v1.md)
 - [docs/realtime-scaleout.md](docs/realtime-scaleout.md)
+- [docs/backend-code-quality.md](docs/backend-code-quality.md)
 
 ## AWS 배포 방향
 
