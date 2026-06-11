@@ -31,7 +31,7 @@ wow-talk-monorepo/
     web.Dockerfile
     api.Dockerfile
 
-  compose.yaml              # 로컬 Postgres
+  compose.yaml              # 로컬 DynamoDB
   package.json              # 루트 실행 스크립트
   pnpm-workspace.yaml       # 프론트 workspace
   settings.gradle           # 백엔드 Gradle 멀티모듈
@@ -86,7 +86,7 @@ AWS 컨테이너 기반 배포를 고려해서 Terraform 영역을 미리 만들
 - ECR: web/api 이미지 저장
 - ECS Fargate: 컨테이너 실행
 - ALB: web/api 라우팅
-- RDS PostgreSQL: 운영 DB
+- DynamoDB: 운영 DB
 - Secrets Manager 또는 SSM Parameter Store: DB 비밀번호 등 secret 주입
 
 ### `docker/`
@@ -248,7 +248,7 @@ NEXT_PUBLIC_API_BASE=http://localhost:8080
 NEXT_PUBLIC_WS_BASE=ws://localhost:8080
 ```
 
-백엔드는 기본 `local` profile로 실행되며, `compose.yaml`의 Postgres를 사용한다.
+백엔드는 기본 `local` profile로 실행되며, `compose.yaml`의 DynamoDB Local을 사용한다.
 
 로컬 프론트 연동을 위해 백엔드는 기본 CORS origin으로 `http://localhost:3000`을 허용한다.
 운영에서는 `WOWTALK_CORS_ALLOWED_ORIGINS` 환경변수로 실제 프론트 도메인을 주입한다.

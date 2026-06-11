@@ -35,6 +35,7 @@ WebSocket 연결
 ```txt
 apps/api              Spring Boot 실행 앱, REST API, 설정
 backend/core          채널/메시지 도메인과 유스케이스
+backend/dynamodb      DynamoDB adapter와 local table initializer
 backend/transport     전송 추상화
 backend/websocket     WebSocket transport 구현
 backend/rawtcp        Raw TCP transport 구현 예정
@@ -129,7 +130,9 @@ PK = ROOM#<roomId>
 SK = EVT#<timestamp>#<eventId>
 ```
 
-로컬 개발은 현재 Postgres/JPA로 빠르게 검증할 수 있지만, 목표 구조는 DynamoDB adapter를 repository interface 뒤에 추가해 전환하는 것이다.
+로컬 개발도 DynamoDB Local을 사용한다. 운영 저장소가 DynamoDB로 확정되었기 때문에 local과 prod의 저장소 access pattern을 최대한 맞춘다.
+
+기존 JPA/Postgres adapter는 `postgres` profile에서만 켜지는 legacy 후보로 격리하고, 기본 local/prod 실행 경로는 DynamoDB adapter를 사용한다.
 
 중요한 구분:
 
@@ -205,7 +208,7 @@ guest user 생성
 - 운영 목표 저장소를 DynamoDB로 확정
 - room event stream access pattern 문서화
 - message/event repository를 DynamoDB 구현으로 추가
-- local DynamoDB 또는 AWS dev table 검증 방식 결정
+- local DynamoDB 검증 방식 결정
 
 ### P4. 멀티 인스턴스 broadcast
 

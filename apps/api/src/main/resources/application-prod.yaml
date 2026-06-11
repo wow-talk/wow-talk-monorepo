@@ -1,9 +1,14 @@
 spring:
-  datasource:
-    url: ${WOWTALK_DB_URL}
-    username: ${WOWTALK_DB_USERNAME}
-    password: ${WOWTALK_DB_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+
+wowtalk:
+  dynamodb:
+    enabled: true
+    initialize-schema: false
+    endpoint: ${WOWTALK_DYNAMODB_ENDPOINT:}
+    region: ${AWS_REGION:ap-northeast-2}
+    main-table: ${WOWTALK_DYNAMODB_MAIN_TABLE:wowtalk-main}
+    room-events-table: ${WOWTALK_DYNAMODB_ROOM_EVENTS_TABLE:wowtalk-room-events}

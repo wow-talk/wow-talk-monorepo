@@ -152,9 +152,10 @@ DynamoDB 중심 저장소로 전환할 준비를 한다.
 - [ ] room event stream access pattern 확정
 - [ ] `wowtalk-room-events` 테이블 키 설계 확정
 - [ ] `wowtalk-main` 테이블 또는 초기 분리 테이블 전략 결정
-- [ ] local DynamoDB 또는 AWS dev table 검증 방식 결정
-- [ ] ChatMessage / GameEvent DynamoDB repository PoC
-- [ ] 기존 JPA/Postgres 구현의 유지 범위 결정
+- [x] local DynamoDB 검증 방식 결정: compose 기반 DynamoDB Local in-memory
+- [x] User / Channel / RoomMember / ChatMessage DynamoDB repository PoC
+- [ ] GameEvent DynamoDB repository PoC
+- [x] 기존 JPA/Postgres 구현은 `postgres` profile legacy adapter로 격리
 
 프론트 영향:
 

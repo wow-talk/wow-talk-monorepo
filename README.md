@@ -1,21 +1,24 @@
 # wow-talk
 
-Wow Talk monorepo.
+Wow Talk 모노레포입니다.
 
-## Structure
+채팅방 안에서 social deduction / mission game을 진행할 수 있는 실시간 서비스를 목표로 합니다.
+
+## 구조
 
 ```txt
-apps/web        Next.js frontend
-apps/api        Spring Boot API application
-backend/core    Backend domain and persistence module
+apps/web         Next.js 프론트엔드
+apps/api         Spring Boot API 실행 앱
+backend/core     백엔드 도메인, 서비스, repository interface
+backend/dynamodb DynamoDB adapter
 backend/transport
 backend/websocket
 backend/rawtcp
-infra/terraform Terraform infrastructure
-docker          Production Dockerfiles
+infra/terraform  Terraform 인프라
+docker           운영 Dockerfile
 ```
 
-## Local development
+## 로컬 실행
 
 ```bash
 pnpm install
@@ -24,30 +27,57 @@ pnpm dev:api
 pnpm dev:web
 ```
 
-The frontend reads:
+기본 접속 주소:
+
+```txt
+web      http://localhost:3000
+api      http://localhost:8080
+swagger  http://localhost:8080/swagger-ui.html
+```
+
+프론트엔드는 아래 값을 기준으로 백엔드에 연결합니다.
 
 ```txt
 NEXT_PUBLIC_API_BASE=http://localhost:8080
 NEXT_PUBLIC_WS_BASE=ws://localhost:8080
 ```
 
-The backend defaults to the `local` Spring profile. Local MVP persistence still uses Postgres, and DynamoDB Local is available for the upcoming room event storage adapter.
+백엔드는 기본적으로 `local` Spring profile로 실행됩니다. 로컬 저장소도 운영 방향과 맞추기 위해 DynamoDB Local을 사용합니다.
 
-## Build
+DynamoDB Local은 간단한 로컬 세팅을 위해 in-memory 모드로 실행합니다. 컨테이너를 재시작하면 테이블과 데이터가 초기화되며, API가 시작될 때 local profile이 아래 테이블을 다시 생성합니다.
+
+```txt
+wowtalk-main-local
+wowtalk-room-events-local
+```
+
+로컬 의존성 종료:
+
+```bash
+pnpm local:down
+```
+
+## 빌드
 
 ```bash
 pnpm build:web
 pnpm build:api
 ```
 
-## Documentation
+백엔드 테스트:
 
-```txt
-docs/          Product, backend, API contract, infrastructure direction
-apps/web/docs  Frontend implementation notes and learning records
+```bash
+./gradlew test
 ```
 
-Frontend/backend shared contracts live in:
+## 문서
+
+```txt
+docs/          제품, 백엔드, API 계약, 인프라 방향
+apps/web/docs  프론트엔드 구현 기록
+```
+
+프론트/백엔드 공용 계약은 아래 문서를 기준으로 합니다.
 
 - [docs/team-workflow.md](docs/team-workflow.md)
 - [docs/frontend-backend-contract.md](docs/frontend-backend-contract.md)
@@ -56,11 +86,11 @@ Frontend/backend shared contracts live in:
 - [docs/realtime-scaleout.md](docs/realtime-scaleout.md)
 - [docs/team-workflow.md](docs/team-workflow.md)
 
-## AWS deployment direction
+## AWS 배포 방향
 
-The target shape is separate container images for `web` and `api`, pushed to ECR and deployed as separate ECS/Fargate services behind an ALB.
+`web`과 `api`는 각각 별도 컨테이너 이미지로 빌드하고, ECR에 push한 뒤 ECS/Fargate 서비스로 배포하는 방향입니다.
 
-The backend should assume multiple API tasks from the beginning.
+백엔드는 처음부터 API task 3대 이상을 전제로 설계합니다.
 
 ```txt
 ALB
@@ -72,21 +102,22 @@ api service
   desired count >= 3
 ```
 
-Production storage direction:
+운영 저장소 방향:
 
 ```txt
 DynamoDB
-  user / room / member state
+  user / room / member 상태
   room event stream
   chat messages
   game events
 ```
 
-Realtime scale-out direction:
+실시간 scale-out 방향:
 
 ```txt
-WebSocket connections are local to each API task.
-Room events must be published through a realtime broker so every API task can broadcast to its local sockets.
+WebSocket 연결은 각 API task의 local 상태로만 관리한다.
+room event는 realtime broker를 통해 모든 API task로 전파한다.
+각 API task는 자신에게 연결된 local socket에만 broadcast한다.
 ```
 
-See [docs/realtime-scaleout.md](docs/realtime-scaleout.md) for the scale-out design.
+자세한 scale-out 설계는 [docs/realtime-scaleout.md](docs/realtime-scaleout.md)를 기준으로 합니다.

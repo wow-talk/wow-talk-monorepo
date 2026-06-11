@@ -1,0 +1,11 @@
+dependencies {
+    implementation project(':backend:core')
+    implementation project(':backend:transport')
+
+    implementation platform('software.amazon.awssdk:bom:2.39.1')
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
