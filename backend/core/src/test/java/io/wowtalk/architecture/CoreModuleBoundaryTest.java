@@ -10,6 +10,11 @@ import org.junit.jupiter.api.Test;
 
 class CoreModuleBoundaryTest {
 
+    /*
+     * This project intentionally keeps backend/core free of adapter implementations.
+     * A lightweight source-level guard is enough here because the rule is about imports,
+     * not runtime behavior.
+     */
     private static final List<String> FORBIDDEN_IMPORTS = List.of(
             "jakarta.persistence.",
             "org.springframework.dao.",

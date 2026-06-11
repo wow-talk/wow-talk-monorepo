@@ -14,10 +14,6 @@ import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
 import io.wowtalk.transport.TransportMode;
 import io.wowtalk.user.domain.UserId;
-import io.wowtalk.user.service.UserService;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -27,58 +23,50 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
-    private static final String ROOM_ID = "roomId";
-    private static final String CONNECTION_ID = "connectionId";
-    private static final String SESSION_ID = "sessionId";
-    private static final String USER_ID = "userId";
-    private static final String PROTOCOL_VERSION = "protocolVersion";
+    private static final String ROOM_ID_ATTRIBUTE = "roomId";
+    private static final String CONNECTION_ID_ATTRIBUTE = "connectionId";
+    private static final String SESSION_ID_ATTRIBUTE = "sessionId";
+    private static final String USER_ID_ATTRIBUTE = "userId";
 
     private final ChannelService channelService;
     private final ChatService chatService;
     private final RealtimeEventPublisher realtimeEventPublisher;
-    private final UserService userService;
     private final RoomMemberService roomMemberService;
     private final WebSocketSessionRegistry sessionRegistry;
     private final WebSocketChatTransport webSocketChatTransport;
     private final WebSocketInboundMessageParser inboundMessageParser;
+    private final WebSocketConnectionResolver connectionResolver;
 
     public WebSocketChatHandler(
             ChannelService channelService,
             ChatService chatService,
             RealtimeEventPublisher realtimeEventPublisher,
-            UserService userService,
             RoomMemberService roomMemberService,
             WebSocketSessionRegistry sessionRegistry,
             WebSocketChatTransport webSocketChatTransport,
-            WebSocketInboundMessageParser inboundMessageParser
+            WebSocketInboundMessageParser inboundMessageParser,
+            WebSocketConnectionResolver connectionResolver
     ) {
         this.channelService = channelService;
         this.chatService = chatService;
         this.realtimeEventPublisher = realtimeEventPublisher;
-        this.userService = userService;
         this.roomMemberService = roomMemberService;
         this.sessionRegistry = sessionRegistry;
         this.webSocketChatTransport = webSocketChatTransport;
         this.inboundMessageParser = inboundMessageParser;
+        this.connectionResolver = connectionResolver;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         try {
-            ConnectionInfo connectionInfo = resolveConnectionInfo(session.getUri());
+            WebSocketConnectionInfo connectionInfo = connectionResolver.resolve(session.getUri());
 
+            // Keep the registry local to this API task; cross-task fan-out is handled by RealtimeEventPublisher.
             channelService.ensureChannel(connectionInfo.roomId(), TransportMode.WEBSOCKET);
             roomMemberService.join(connectionInfo.roomId(), connectionInfo.userId());
-            sessionRegistry.register(connectionInfo.roomId(), connectionInfo.connectionId(), connectionInfo.sessionId(), session);
-            session.getAttributes().put(ROOM_ID, connectionInfo.roomId());
-            session.getAttributes().put(CONNECTION_ID, connectionInfo.connectionId());
-            session.getAttributes().put(SESSION_ID, connectionInfo.sessionId());
-            session.getAttributes().put(USER_ID, connectionInfo.userId());
-            session.getAttributes().put(WebSocketChatTransport.PROTOCOL_VERSION_ATTRIBUTE, connectionInfo.protocolVersion());
-            webSocketChatTransport.sendSystemMessage(
-                    session,
-                    connectedMessage(connectionInfo)
-            );
+            registerConnection(session, connectionInfo);
+            webSocketChatTransport.sendSystemMessage(session, connectedMessage(connectionInfo));
         } catch (WowTalkException exception) {
             sendError(session, exception.errorCode());
             session.close(CloseStatus.BAD_DATA);
@@ -88,10 +76,10 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
-            RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID);
-            ConnectionId connectionId = (ConnectionId) session.getAttributes().get(CONNECTION_ID);
-            SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID);
-            UserId userId = (UserId) session.getAttributes().get(USER_ID);
+            RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID_ATTRIBUTE);
+            ConnectionId connectionId = (ConnectionId) session.getAttributes().get(CONNECTION_ID_ATTRIBUTE);
+            SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID_ATTRIBUTE);
+            UserId userId = (UserId) session.getAttributes().get(USER_ID_ATTRIBUTE);
             ParsedInboundChatMessage inboundMessage = inboundMessageParser.parseChatMessage(message.getPayload());
 
             ChatMessageResult result = chatService.send(new SendChatMessageCommand(
@@ -123,32 +111,17 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         sessionRegistry.unregister(session);
     }
 
-    private ConnectionInfo resolveConnectionInfo(URI uri) {
-        if (uri == null || uri.getQuery() == null || uri.getQuery().isBlank()) {
-            throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
-        }
-
-        Map<String, String> queryParams = parseQueryParams(uri.getQuery());
-        String roomId = queryParams.get(ROOM_ID);
-        String connectionId = queryParams.get(CONNECTION_ID);
-        String sessionId = queryParams.get(SESSION_ID);
-        String userId = queryParams.get(USER_ID);
-        String protocolVersion = queryParams.get(PROTOCOL_VERSION);
-
-        if (roomId == null || roomId.isBlank() || sessionId == null || sessionId.isBlank()) {
-            throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
-        }
-
-        UserId resolvedUserId = resolveUserId(userId, sessionId);
-
-        ConnectionId resolvedConnectionId = resolveConnectionId(connectionId);
-        String resolvedProtocolVersion = resolveProtocolVersion(protocolVersion);
-
-        return new ConnectionInfo(new RoomId(roomId), resolvedConnectionId, new SessionId(sessionId), resolvedUserId, resolvedProtocolVersion);
+    private void registerConnection(WebSocketSession session, WebSocketConnectionInfo connectionInfo) {
+        sessionRegistry.register(connectionInfo.roomId(), connectionInfo.connectionId(), connectionInfo.sessionId(), session);
+        session.getAttributes().put(ROOM_ID_ATTRIBUTE, connectionInfo.roomId());
+        session.getAttributes().put(CONNECTION_ID_ATTRIBUTE, connectionInfo.connectionId());
+        session.getAttributes().put(SESSION_ID_ATTRIBUTE, connectionInfo.sessionId());
+        session.getAttributes().put(USER_ID_ATTRIBUTE, connectionInfo.userId());
+        session.getAttributes().put(WebSocketProtocol.PROTOCOL_VERSION_ATTRIBUTE, connectionInfo.protocolVersion());
     }
 
-    private Object connectedMessage(ConnectionInfo connectionInfo) {
-        if ("1".equals(connectionInfo.protocolVersion())) {
+    private Object connectedMessage(WebSocketConnectionInfo connectionInfo) {
+        if (connectionInfo.usesProtocolV1()) {
             return RealtimeOutboundMessage.connected(
                     connectionInfo.roomId().value(),
                     connectionInfo.connectionId().value(),
@@ -163,32 +136,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         );
     }
 
-    private ConnectionId resolveConnectionId(String connectionId) {
-        if (connectionId == null || connectionId.isBlank()) {
-            return ConnectionId.newId();
-        }
-        return new ConnectionId(connectionId);
-    }
-
-    private UserId resolveUserId(String userId, String legacySessionId) {
-        if (userId == null || userId.isBlank()) {
-            return userService.createGuest(legacySessionId).userId();
-        }
-        UserId resolvedUserId = new UserId(userId);
-        userService.get(resolvedUserId);
-        return resolvedUserId;
-    }
-
-    private String resolveProtocolVersion(String protocolVersion) {
-        if (protocolVersion == null || protocolVersion.isBlank()) {
-            return "legacy";
-        }
-        if (!"1".equals(protocolVersion)) {
-            throw new WowTalkException(ErrorCode.WEBSOCKET_CONNECTION_INVALID);
-        }
-        return protocolVersion;
-    }
-
     private void sendError(WebSocketSession session, ErrorCode errorCode) {
         if (session.isOpen()) {
             if (webSocketChatTransport.usesProtocolV1(session)) {
@@ -197,27 +144,5 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             }
             webSocketChatTransport.sendSystemMessage(session, WebSocketOutboundMessage.error(errorCode));
         }
-    }
-
-    private Map<String, String> parseQueryParams(String query) {
-        Map<String, String> params = new HashMap<>();
-
-        for (String part : query.split("&")) {
-            String[] keyValue = part.split("=", 2);
-            if (keyValue.length == 2) {
-                params.put(keyValue[0], keyValue[1]);
-            }
-        }
-
-        return params;
-    }
-
-    private record ConnectionInfo(
-            RoomId roomId,
-            ConnectionId connectionId,
-            SessionId sessionId,
-            UserId userId,
-            String protocolVersion
-    ) {
     }
 }

@@ -22,9 +22,15 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 @ConditionalOnProperty(prefix = "wowtalk.dynamodb", name = "enabled", havingValue = "true")
 public class RoomEventDynamoDbRepository implements RoomEventRepository {
 
+    /*
+     * Room events are stored in a dedicated stream table so game/system events can grow
+     * independently from the MVP chat message table.
+     */
     static final String PK = "pk";
     static final String SK = "sk";
 
+    private static final String ROOM_PREFIX = "ROOM#";
+    private static final String EVENT_PREFIX = "EVT#";
     private static final String EVENT_ID = "eventId";
     private static final String ROOM_ID = "roomId";
     private static final String EVENT_TYPE = "eventType";
@@ -53,7 +59,7 @@ public class RoomEventDynamoDbRepository implements RoomEventRepository {
     public List<RoomEvent> findRecentByRoomId(RoomId roomId, int limit) {
         Map<String, AttributeValue> values = Map.of(
                 ":pk", AttributeValue.fromS(partitionKey(roomId)),
-                ":skPrefix", AttributeValue.fromS("EVT#")
+                ":skPrefix", AttributeValue.fromS(EVENT_PREFIX)
         );
 
         return dynamoDbClient.query(QueryRequest.builder()
@@ -98,10 +104,10 @@ public class RoomEventDynamoDbRepository implements RoomEventRepository {
     }
 
     private String partitionKey(RoomId roomId) {
-        return "ROOM#" + roomId.value();
+        return ROOM_PREFIX + roomId.value();
     }
 
     private String sortKey(RoomEvent roomEvent) {
-        return "EVT#" + roomEvent.occurredAt().toEpochMilli() + "#" + roomEvent.eventId().value();
+        return EVENT_PREFIX + roomEvent.occurredAt().toEpochMilli() + "#" + roomEvent.eventId().value();
     }
 }

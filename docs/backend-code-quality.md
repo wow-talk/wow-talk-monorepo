@@ -98,6 +98,33 @@ Controller는 예외를 직접 try/catch하지 않는다. 공통 응답 변환�
 
 기능 설명은 가능하면 코드 주석보다 문서에 둔다. 코드에는 해당 결정이 없으면 오해하기 쉬운 부분만 짧게 남긴다.
 
+현재 코드에서 주석을 유지해야 하는 대표 위치:
+
+- DynamoDB key helper: single-table access pattern 설명
+- room event repository: chat message와 event stream을 분리한 이유
+- WebSocket connection registry: API task local registry라는 제약
+- architecture test: source-level import guard를 쓰는 이유
+
+## 이름과 상수 기준
+
+프로토콜, DynamoDB key prefix, HTTP header, session attribute처럼 외부 계약에 가까운 문자열은 상수로 둔다.
+
+- `"1"`보다 `WebSocketProtocol.VERSION_1`
+- `"legacy"`보다 `WebSocketProtocol.LEGACY_VERSION`
+- `"ROOM#"`보다 `ROOM_PREFIX`
+- `"X-Request-Id"`보다 `REQUEST_ID_HEADER`
+
+반대로 테스트 데이터의 `room-1`, `guest-1`처럼 시나리오를 읽기 쉽게 만드는 값은 그대로 둘 수 있다.
+
+## Handler 책임 기준
+
+WebSocket handler는 외부 이벤트의 흐름을 보여주는 곳이다.
+
+- connection query 해석은 resolver로 분리한다.
+- handler는 연결 등록, 메시지 command 생성, event publish 흐름을 담당한다.
+- session registry는 현재 API task의 local socket만 관리한다.
+- 서버 간 broadcast는 realtime broker adapter가 담당한다.
+
 ## 테스트 기준
 
 테스트는 위험도에 맞춰 둔다.
