@@ -172,10 +172,11 @@ ECS에서 API 서버를 3대 이상 띄워도 WebSocket broadcast가 된다.
 
 - [ ] serverInstanceId 도입
 - [ ] `WebSocketSessionRegistry`를 local connection registry로 제한
-- [ ] `RealtimeEventPublisher` 추상화 추가
+- [x] `RealtimeEventPublisher` 추상화 추가
 - [ ] broker 후보 비용/복잡도 비교
-- [ ] Redis Pub/Sub, Kafka, SNS/SQS, EventBridge, DynamoDB Streams 중 PoC 후보 결정
-- [ ] local sessions + remote event bridge 구조 구현
+- [x] Redis Pub/Sub PoC 후보 결정
+- [x] Redis Pub/Sub publisher/subscriber adapter 초안 구현
+- [ ] local sessions + remote event bridge 로컬 3 인스턴스 검증
 - [ ] API 3개 인스턴스 로컬 broadcast 테스트 추가
 
 프론트 영향:

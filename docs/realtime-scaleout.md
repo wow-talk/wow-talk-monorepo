@@ -237,19 +237,28 @@ RealtimeEventSubscriber
 -> WebSocketChatTransport.broadcast()
 ```
 
-첫 단계에서는 Redis를 바로 붙이지 않고 local publisher 구현으로 기존 동작을 유지한다.
+기본 local profile에서는 local publisher 구현으로 기존 단일 서버 동작을 유지한다.
 
 ```txt
 RealtimeEventPublisher
 LocalRealtimeEventPublisher
 ```
 
-이후 운영 profile에서 broker 구현으로 교체한다.
+multi-instance 검증 또는 운영 broker 모드에서는 Redis Pub/Sub adapter로 교체한다.
 
 ```txt
 RedisRealtimeEventPublisher
 RedisRealtimeEventSubscriber
 ```
+
+설정:
+
+```txt
+wowtalk.realtime.broker=local
+wowtalk.realtime.broker=redis
+```
+
+Redis 모드에서는 모든 API task가 같은 Redis channel pattern을 subscribe한다. 메시지를 받은 각 API task는 자신에게 연결된 local WebSocket 세션에만 broadcast한다.
 
 ## 로컬 scale-out 테스트 방향
 
@@ -290,5 +299,5 @@ A sends message
 2. `RealtimeEventPublisher` 추상화를 추가한다.
 3. local publisher로 기존 단일 서버 동작을 유지한다.
 4. DynamoDB room event stream 저장소를 구현한다.
-5. Redis Pub/Sub 또는 AWS managed broker 구현체를 추가한다.
+5. Redis Pub/Sub broker 구현체를 추가한다.
 6. API 3개 인스턴스 로컬 테스트를 추가한다.
