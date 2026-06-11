@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-@Profile("!test")
+@Profile("postgres")
 @Primary
 @Repository
 public class RoomMemberRepositoryJpaAdapter implements RoomMemberRepository {

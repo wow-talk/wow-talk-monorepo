@@ -1,18 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/wowtalk
-    username: wowtalk
-    password: wowtalk
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-    open-in-view: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
 
 wowtalk:
   dynamodb:
+    enabled: true
+    initialize-schema: true
     endpoint: http://localhost:8000
     region: ap-northeast-2
+    main-table: wowtalk-main-local
     room-events-table: wowtalk-room-events-local

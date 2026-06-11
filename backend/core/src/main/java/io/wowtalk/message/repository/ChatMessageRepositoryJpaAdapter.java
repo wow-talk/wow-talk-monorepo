@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
-@Profile("!test")
+@Profile("postgres")
 @Primary
 @Repository
 public class ChatMessageRepositoryJpaAdapter implements ChatMessageRepository {
