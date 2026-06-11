@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation project(':backend:core')
     implementation project(':backend:dynamodb')
+    implementation project(':backend:redis')
     implementation project(':backend:transport')
     implementation project(':backend:rawtcp')
     implementation project(':backend:websocket')

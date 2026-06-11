@@ -3,6 +3,10 @@ spring:
     default: local
   application:
     name: wow-talk
+  data:
+    redis:
+      repositories:
+        enabled: false
 
 server:
   port: 8080

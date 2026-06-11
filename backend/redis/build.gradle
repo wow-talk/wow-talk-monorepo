@@ -1,0 +1,9 @@
+dependencies {
+    implementation project(':backend:transport')
+
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

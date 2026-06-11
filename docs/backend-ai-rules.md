@@ -37,6 +37,10 @@
   - DynamoDB client configuration
   - DynamoDB repository adapter
   - DynamoDB local table initializer
+- `wowtalk-redis`
+  - Redis Pub/Sub realtime event publisher
+  - Redis Pub/Sub realtime event subscriber
+  - multi-instance WebSocket fan-out adapter
 - `wowtalk-transport`
   - `ChatTransport` 인터페이스
   - `RealtimeEventPublisher` 인터페이스
@@ -54,6 +58,7 @@
 - `wowtalk-api`는 진입점 역할만 담당한다.
 - `wowtalk-core`는 비즈니스 중심이어야 하며 전송 구현체를 직접 알면 안 된다.
 - `wowtalk-dynamodb`는 DynamoDB 구현 상세를 담는 adapter 모듈이며 core가 이 모듈을 알면 안 된다.
+- `wowtalk-redis`는 서버 간 realtime fan-out 구현 상세를 담는 adapter 모듈이며 core와 websocket이 이 모듈을 알면 안 된다.
 - `wowtalk-transport`는 추상화 계층만 제공한다.
 - `wowtalk-rawtcp`, `wowtalk-websocket`은 `wowtalk-transport`를 구현하는 모듈이다.
 - 의존성은 반드시 안쪽 정책이 바깥 구현을 모르도록 유지한다.

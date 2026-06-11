@@ -5,6 +5,10 @@ spring:
       - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
 
 wowtalk:
+  realtime:
+    broker: ${WOWTALK_REALTIME_BROKER:local}
+    redis:
+      channel-prefix: wowtalk:room-events
   dynamodb:
     enabled: true
     initialize-schema: true

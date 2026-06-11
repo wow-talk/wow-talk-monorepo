@@ -11,6 +11,7 @@ apps/web         Next.js 프론트엔드
 apps/api         Spring Boot API 실행 앱
 backend/core     백엔드 도메인, 서비스, repository interface
 backend/dynamodb DynamoDB adapter
+backend/redis    Redis Pub/Sub realtime broker adapter
 backend/transport
 backend/websocket
 backend/rawtcp
@@ -51,6 +52,14 @@ wowtalk-main-local
 wowtalk-room-events-local
 ```
 
+기본 realtime broker는 `local`입니다. API 서버 1대 로컬 개발에서는 local broker가 바로 WebSocket에 broadcast합니다.
+
+여러 API 인스턴스 broadcast를 검증할 때는 Redis broker를 사용합니다.
+
+```bash
+WOWTALK_REALTIME_BROKER=redis ./gradlew :apps:api:bootRun
+```
+
 로컬 의존성 종료:
 
 ```bash
@@ -84,7 +93,6 @@ apps/web/docs  프론트엔드 구현 기록
 - [docs/websocket-api.md](docs/websocket-api.md)
 - [docs/realtime-protocol-v1.md](docs/realtime-protocol-v1.md)
 - [docs/realtime-scaleout.md](docs/realtime-scaleout.md)
-- [docs/team-workflow.md](docs/team-workflow.md)
 
 ## AWS 배포 방향
 

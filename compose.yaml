@@ -5,3 +5,9 @@ services:
     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
     ports:
       - "8000:8000"
+
+  redis:
+    image: redis:7-alpine
+    container_name: wowtalk-redis
+    ports:
+      - "6379:6379"
