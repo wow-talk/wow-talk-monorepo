@@ -200,6 +200,9 @@ ECS/Fargate 운영과 인프라 모니터링을 고려해 로그, 헬스체크, 
 - [x] actuator health/info/metrics 노출
 - [x] 느린 service method 관측용 AOP 추가
 - [x] API Dockerfile을 현재 멀티모듈 구조에 맞게 갱신
+- [x] requestId filter와 공통 예외 처리 단위 테스트 추가
+- [x] core 모듈 경계 보호 테스트 추가
+- [x] 백엔드 코드 품질 기준 문서 추가
 - [ ] 운영 로그 포맷 JSON 전환 여부 결정
 - [ ] CloudWatch metric/alarm 기준 문서화
 
