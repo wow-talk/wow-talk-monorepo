@@ -23,8 +23,8 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 public class RoomEventDynamoDbRepository implements RoomEventRepository {
 
     /*
-     * Room events are stored in a dedicated stream table so game/system events can grow
-     * independently from the MVP chat message table.
+     * 방 이벤트는 채팅 메시지와 별도 stream 테이블에 저장한다.
+     * 이후 게임/시스템 이벤트가 늘어나도 MVP 채팅 메시지 테이블과 독립적으로 확장하기 위해서다.
      */
     static final String PK = "pk";
     static final String SK = "sk";

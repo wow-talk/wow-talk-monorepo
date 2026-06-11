@@ -8,11 +8,11 @@ import io.wowtalk.user.domain.UserId;
 public final class DynamoDbKeys {
 
     /*
-     * Main table access pattern:
-     * - USER#<userId> / PROFILE: guest or authenticated user profile
-     * - ROOM#<roomId> / CHANNEL: room transport metadata
-     * - ROOM#<roomId> / MEMBER#<userId>: room membership
-     * - ROOM#<roomId> / MSG#<epochMillis>#<messageId>: room message timeline
+     * 메인 테이블 access pattern:
+     * - USER#<userId> / PROFILE: 게스트 또는 인증 사용자 프로필
+     * - ROOM#<roomId> / CHANNEL: 방 전송 방식 메타데이터
+     * - ROOM#<roomId> / MEMBER#<userId>: 방 참여자 정보
+     * - ROOM#<roomId> / MSG#<epochMillis>#<messageId>: 방 메시지 타임라인
      */
     public static final String PK = "pk";
     public static final String SK = "sk";

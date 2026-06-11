@@ -60,7 +60,7 @@ public class WebSocketConnectionResolver {
 
     private UserId resolveUserId(String userId, String legacySessionId) {
         if (userId == null || userId.isBlank()) {
-            // Legacy clients used sessionId as the visible sender. Preserve it until the frontend fully adopts userId.
+            // 기존 클라이언트는 sessionId를 발신자처럼 사용했으므로, 프론트가 userId로 완전히 전환될 때까지 보존한다.
             return userService.createGuest(legacySessionId).userId();
         }
         UserId resolvedUserId = new UserId(userId);

@@ -62,7 +62,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         try {
             WebSocketConnectionInfo connectionInfo = connectionResolver.resolve(session.getUri());
 
-            // Keep the registry local to this API task; cross-task fan-out is handled by RealtimeEventPublisher.
+            // 세션 registry는 현재 API task의 local socket만 관리하고, 서버 간 fan-out은 RealtimeEventPublisher가 담당한다.
             channelService.ensureChannel(connectionInfo.roomId(), TransportMode.WEBSOCKET);
             roomMemberService.join(connectionInfo.roomId(), connectionInfo.userId());
             registerConnection(session, connectionInfo);
