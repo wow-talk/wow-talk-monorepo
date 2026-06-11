@@ -1,25 +1,7 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: wowtalk-postgres
-    environment:
-      POSTGRES_DB: wowtalk
-      POSTGRES_USER: wowtalk
-      POSTGRES_PASSWORD: wowtalk
-    ports:
-      - "5432:5432"
-    volumes:
-      - wowtalk-postgres-data:/var/lib/postgresql/data
-
   dynamodb-local:
     image: amazon/dynamodb-local:2.6.1
     container_name: wowtalk-dynamodb-local
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
     ports:
       - "8000:8000"
-    volumes:
-      - wowtalk-dynamodb-data:/home/dynamodblocal/data
-
-volumes:
-  wowtalk-postgres-data:
-  wowtalk-dynamodb-data:
