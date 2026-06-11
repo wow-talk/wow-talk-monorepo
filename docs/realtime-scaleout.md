@@ -269,6 +269,8 @@ Redis localhost:6379
 DynamoDB Local localhost:8000
 ```
 
+현재 로컬 DynamoDB는 compose에서 in-memory 모드로 실행한다. 파일 볼륨 권한 문제 없이 바로 띄우는 것을 우선하며, 컨테이너 재시작 시 테이블과 데이터는 초기화된다. `local` Spring profile은 API 시작 시 `wowtalk-main-local`과 `wowtalk-room-events-local` 테이블을 다시 생성한다.
+
 검증 시나리오:
 
 ```txt

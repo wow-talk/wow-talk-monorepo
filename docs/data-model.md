@@ -176,7 +176,7 @@ EventId
 
 운영 저장소의 기본 방향은 DynamoDB다.
 
-기존 JPA/Postgres 구현은 로컬 MVP와 빠른 검증을 위한 현재 구현으로 보고, 운영 구조는 DynamoDB access pattern을 기준으로 재설계한다.
+기본 local/prod 실행 경로는 DynamoDB access pattern을 기준으로 설계한다. 기존 JPA/Postgres 구현은 `postgres` profile에서만 켜지는 legacy adapter로 격리한다.
 
 DynamoDB에 특히 잘 맞는 데이터는 append-heavy, time-ordered access pattern이 명확한 데이터다.
 
