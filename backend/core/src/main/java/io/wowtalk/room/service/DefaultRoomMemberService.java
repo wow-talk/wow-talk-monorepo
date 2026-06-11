@@ -8,7 +8,6 @@ import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.TransportMode;
 import io.wowtalk.user.domain.UserId;
 import io.wowtalk.user.service.UserService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,13 +38,7 @@ public class DefaultRoomMemberService implements RoomMemberService {
     }
 
     private RoomMemberInfo create(RoomId roomId, UserId userId) {
-        try {
-            return toInfo(roomMemberRepository.save(new RoomMember(roomId, userId, null, null, null)));
-        } catch (DataIntegrityViolationException exception) {
-            return roomMemberRepository.findByRoomIdAndUserId(roomId, userId)
-                    .map(this::toInfo)
-                    .orElseThrow(() -> exception);
-        }
+        return toInfo(roomMemberRepository.save(new RoomMember(roomId, userId, null, null, null)));
     }
 
     private RoomMemberInfo toInfo(RoomMember roomMember) {

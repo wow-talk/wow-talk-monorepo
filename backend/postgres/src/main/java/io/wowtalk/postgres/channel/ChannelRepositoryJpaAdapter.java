@@ -1,7 +1,7 @@
-package io.wowtalk.channel.repository;
+package io.wowtalk.postgres.channel;
 
 import io.wowtalk.channel.domain.Channel;
-import io.wowtalk.channel.domain.ChannelEntity;
+import io.wowtalk.channel.repository.ChannelRepository;
 import io.wowtalk.transport.RoomId;
 import java.util.Optional;
 import org.springframework.context.annotation.Profile;

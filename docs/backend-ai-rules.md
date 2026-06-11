@@ -31,12 +31,14 @@
   - 도메인
   - Service
   - Repository
-  - Entity
   - DTO
 - `wowtalk-dynamodb`
   - DynamoDB client configuration
   - DynamoDB repository adapter
   - DynamoDB local table initializer
+- `wowtalk-postgres`
+  - Postgres/JPA legacy repository adapter
+  - `postgres` profile에서만 활성화되는 RDS 후보 구현
 - `wowtalk-redis`
   - Redis Pub/Sub realtime event publisher
   - Redis Pub/Sub realtime event subscriber
@@ -58,6 +60,7 @@
 - `wowtalk-api`는 진입점 역할만 담당한다.
 - `wowtalk-core`는 비즈니스 중심이어야 하며 전송 구현체를 직접 알면 안 된다.
 - `wowtalk-dynamodb`는 DynamoDB 구현 상세를 담는 adapter 모듈이며 core가 이 모듈을 알면 안 된다.
+- `wowtalk-postgres`는 Postgres/JPA 구현 상세를 담는 adapter 모듈이며 core가 이 모듈을 알면 안 된다.
 - `wowtalk-redis`는 서버 간 realtime fan-out 구현 상세를 담는 adapter 모듈이며 core와 websocket이 이 모듈을 알면 안 된다.
 - `wowtalk-transport`는 추상화 계층만 제공한다.
 - `wowtalk-rawtcp`, `wowtalk-websocket`은 `wowtalk-transport`를 구현하는 모듈이다.
@@ -86,7 +89,8 @@ message/
 ```
 
 - `Controller`는 `wowtalk-api`에만 둔다.
-- `Service`, `Repository`, `Entity`, `DTO`는 `wowtalk-core`에 둔다.
+- `Service`, repository interface, domain model, DTO는 `wowtalk-core`에 둔다.
+- DynamoDB item mapper와 JPA entity는 각 adapter 모듈에 둔다.
 - 흐름은 반드시 `Controller -> Service -> Repository`를 유지한다.
 - Entity와 DTO는 분리한다.
 - transport 구현 상세는 core 밖으로 새지 않게 한다.
@@ -108,6 +112,8 @@ message/
 - `@RestControllerAdvice`를 사용한다.
 - `CustomException` 기반으로 관리한다.
 - 예외 메시지는 한글로 작성한다.
+- 서버 로그에는 requestId, errorCode, message를 남긴다.
+- 예상 가능한 도메인 예외는 warn, 알 수 없는 예외는 stacktrace와 함께 error로 남긴다.
 - 응답 예시는 아래 형식을 따른다.
 
 ```json
@@ -124,6 +130,14 @@ message/
 - AOP는 로깅과 실행 시간 측정에만 사용한다.
 - 비즈니스 로직을 AOP 뒤로 숨기지 않는다.
 - 핵심 로직이 AOP 없이는 이해되지 않는 구조를 만들지 않는다.
+- 느린 service method 관측처럼 운영 신호를 남기는 용도로 제한한다.
+
+## 9-1. 운영성 원칙
+- 모든 HTTP 요청은 requestId를 가진다.
+- 클라이언트가 `X-Request-Id`를 보내면 그대로 사용하고, 없으면 서버가 생성한다.
+- 운영 헬스체크는 actuator health endpoint를 기준으로 한다.
+- API container 빌드는 루트 Gradle 멀티모듈 기준으로 `:apps:api:bootJar`를 생성한다.
+- Dockerfile이 새 backend 모듈을 누락하지 않도록 모듈 추가 시 함께 갱신한다.
 
 ## 10. Gradle 원칙
 - Spring Boot 플러그인은 `wowtalk-api`에만 적용한다.

@@ -1,5 +1,7 @@
-package io.wowtalk.message.domain;
+package io.wowtalk.postgres.message;
 
+import io.wowtalk.message.domain.MessageStatus;
+import io.wowtalk.message.domain.MessageId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

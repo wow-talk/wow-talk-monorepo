@@ -1,8 +1,8 @@
-package io.wowtalk.user.repository;
+package io.wowtalk.postgres.user;
 
 import io.wowtalk.user.domain.User;
-import io.wowtalk.user.domain.UserEntity;
 import io.wowtalk.user.domain.UserId;
+import io.wowtalk.user.repository.UserRepository;
 import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Primary;

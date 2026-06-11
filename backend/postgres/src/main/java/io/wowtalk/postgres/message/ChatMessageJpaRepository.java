@@ -1,6 +1,5 @@
-package io.wowtalk.message.repository;
+package io.wowtalk.postgres.message;
 
-import io.wowtalk.message.domain.ChatMessageEntity;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

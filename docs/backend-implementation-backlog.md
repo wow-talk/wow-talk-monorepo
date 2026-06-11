@@ -156,6 +156,7 @@ DynamoDB 중심 저장소로 전환할 준비를 한다.
 - [x] User / Channel / RoomMember / ChatMessage DynamoDB repository PoC
 - [ ] GameEvent DynamoDB repository PoC
 - [x] 기존 JPA/Postgres 구현은 `postgres` profile legacy adapter로 격리
+- [x] Postgres/JPA adapter를 `backend/postgres` 모듈로 분리
 
 프론트 영향:
 
@@ -183,6 +184,24 @@ ECS에서 API 서버를 3대 이상 띄워도 WebSocket broadcast가 된다.
 
 - 없음 또는 낮음
 - 연결 안정성은 좋아짐
+
+## Milestone 9. Operability / Deployment
+
+목표:
+
+ECS/Fargate 운영과 인프라 모니터링을 고려해 로그, 헬스체크, 컨테이너 빌드 기준을 정리한다.
+
+작업:
+
+- [x] 모든 HTTP 요청에 `X-Request-Id` 부여
+- [x] HTTP 요청 로그에 method, uri, status, elapsedMs 기록
+- [x] 공통 예외 처리에서 도메인 예외와 알 수 없는 예외 로그 분리
+- [x] validation 실패 응답 코드 통일
+- [x] actuator health/info/metrics 노출
+- [x] 느린 service method 관측용 AOP 추가
+- [x] API Dockerfile을 현재 멀티모듈 구조에 맞게 갱신
+- [ ] 운영 로그 포맷 JSON 전환 여부 결정
+- [ ] CloudWatch metric/alarm 기준 문서화
 
 ## 바로 다음 작업
 

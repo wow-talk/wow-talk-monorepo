@@ -1,5 +1,7 @@
-package io.wowtalk.room.domain;
+package io.wowtalk.postgres.room;
 
+import io.wowtalk.room.domain.RoomMemberRole;
+import io.wowtalk.room.domain.RoomMemberStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
