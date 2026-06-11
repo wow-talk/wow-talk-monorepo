@@ -3,6 +3,7 @@ package io.wowtalk.common.error;
 public enum ErrorCode {
     CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    VALIDATION_FAILED("요청 값이 올바르지 않습니다."),
     TRANSPORT_MODE_MISMATCH("채널의 전송 방식과 요청한 전송 방식이 다릅니다."),
     INVALID_CHAT_MESSAGE("메시지 내용이 올바르지 않습니다."),
     WEBSOCKET_CONNECTION_INVALID("웹소켓 연결 정보가 올바르지 않습니다."),

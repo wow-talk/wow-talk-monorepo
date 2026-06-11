@@ -1,5 +1,7 @@
-package io.wowtalk.user.domain;
+package io.wowtalk.postgres.user;
 
+import io.wowtalk.user.domain.UserId;
+import io.wowtalk.user.domain.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

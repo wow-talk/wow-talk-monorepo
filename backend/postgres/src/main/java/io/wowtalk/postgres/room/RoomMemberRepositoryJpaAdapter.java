@@ -1,7 +1,7 @@
-package io.wowtalk.room.repository;
+package io.wowtalk.postgres.room;
 
 import io.wowtalk.room.domain.RoomMember;
-import io.wowtalk.room.domain.RoomMemberEntity;
+import io.wowtalk.room.repository.RoomMemberRepository;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.user.domain.UserId;
 import java.util.Optional;

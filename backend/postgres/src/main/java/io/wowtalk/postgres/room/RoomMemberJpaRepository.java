@@ -1,6 +1,5 @@
-package io.wowtalk.room.repository;
+package io.wowtalk.postgres.room;
 
-import io.wowtalk.room.domain.RoomMemberEntity;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

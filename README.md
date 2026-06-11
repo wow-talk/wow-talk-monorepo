@@ -11,6 +11,7 @@ apps/web         Next.js 프론트엔드
 apps/api         Spring Boot API 실행 앱
 backend/core     백엔드 도메인, 서비스, repository interface
 backend/dynamodb DynamoDB adapter
+backend/postgres  Postgres/JPA legacy adapter
 backend/redis    Redis Pub/Sub realtime broker adapter
 backend/transport
 backend/websocket
@@ -34,6 +35,7 @@ pnpm dev:web
 web      http://localhost:3000
 api      http://localhost:8080
 swagger  http://localhost:8080/swagger-ui.html
+health   http://localhost:8080/actuator/health
 ```
 
 프론트엔드는 아래 값을 기준으로 백엔드에 연결합니다.
@@ -129,3 +131,5 @@ room event는 realtime broker를 통해 모든 API task로 전파한다.
 ```
 
 자세한 scale-out 설계는 [docs/realtime-scaleout.md](docs/realtime-scaleout.md)를 기준으로 합니다.
+
+운영 로그와 헬스체크 기준은 [docs/backend-operability.md](docs/backend-operability.md)를 기준으로 합니다.

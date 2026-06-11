@@ -1,9 +1,9 @@
-package io.wowtalk.message.repository;
+package io.wowtalk.postgres.message;
 
 import io.wowtalk.message.domain.ChatMessage;
-import io.wowtalk.message.domain.ChatMessageEntity;
 import io.wowtalk.message.domain.MessageId;
 import io.wowtalk.message.domain.MessageStatus;
+import io.wowtalk.message.repository.ChatMessageRepository;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.transport.SessionId;
 import io.wowtalk.user.domain.UserId;

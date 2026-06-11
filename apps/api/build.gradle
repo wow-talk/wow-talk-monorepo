@@ -5,14 +5,18 @@ plugins {
 dependencies {
     implementation project(':backend:core')
     implementation project(':backend:dynamodb')
+    implementation project(':backend:postgres')
     implementation project(':backend:redis')
     implementation project(':backend:transport')
     implementation project(':backend:rawtcp')
     implementation project(':backend:websocket')
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework:spring-aop'
+    implementation 'org.aspectj:aspectjweaver'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

@@ -1,4 +1,4 @@
-package io.wowtalk.channel.domain;
+package io.wowtalk.postgres.channel;
 
 import io.wowtalk.transport.TransportMode;
 import jakarta.persistence.Column;

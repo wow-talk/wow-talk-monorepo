@@ -36,6 +36,8 @@ WebSocket 연결
 apps/api              Spring Boot 실행 앱, REST API, 설정
 backend/core          채널/메시지 도메인과 유스케이스
 backend/dynamodb      DynamoDB adapter와 local table initializer
+backend/postgres      Postgres/JPA legacy adapter
+backend/redis         Redis Pub/Sub realtime broker adapter
 backend/transport     전송 추상화
 backend/websocket     WebSocket transport 구현
 backend/rawtcp        Raw TCP transport 구현 예정
@@ -134,6 +136,8 @@ SK = EVT#<timestamp>#<eventId>
 
 기존 JPA/Postgres adapter는 `postgres` profile에서만 켜지는 legacy 후보로 격리하고, 기본 local/prod 실행 경로는 DynamoDB adapter를 사용한다.
 
+Postgres/JPA 구현은 `backend/postgres` 모듈에 둔다. `backend/core`는 repository interface와 도메인 규칙만 가진다. 이렇게 두면 운영 기본값은 DynamoDB로 유지하면서도, 나중에 RDS가 필요해질 때 adapter 모듈을 profile로 선택할 수 있다.
+
 중요한 구분:
 
 ```txt
@@ -165,6 +169,9 @@ Data
 Realtime fan-out
   Redis Pub/Sub or AWS managed broker
   Secrets Manager / SSM Parameter Store
+Observability
+  actuator health / metrics
+  requestId 기반 structured log
 ```
 
 web과 api는 별도 이미지, 별도 ECS service로 운영한다.

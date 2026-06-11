@@ -6,6 +6,9 @@ COPY gradle ./gradle
 COPY gradlew settings.gradle build.gradle ./
 COPY apps/api/build.gradle ./apps/api/build.gradle
 COPY backend/core/build.gradle ./backend/core/build.gradle
+COPY backend/dynamodb/build.gradle ./backend/dynamodb/build.gradle
+COPY backend/postgres/build.gradle ./backend/postgres/build.gradle
+COPY backend/redis/build.gradle ./backend/redis/build.gradle
 COPY backend/transport/build.gradle ./backend/transport/build.gradle
 COPY backend/rawtcp/build.gradle ./backend/rawtcp/build.gradle
 COPY backend/websocket/build.gradle ./backend/websocket/build.gradle
@@ -14,6 +17,9 @@ RUN ./gradlew :apps:api:dependencies --no-daemon
 
 COPY apps/api/src ./apps/api/src
 COPY backend/core/src ./backend/core/src
+COPY backend/dynamodb/src ./backend/dynamodb/src
+COPY backend/postgres/src ./backend/postgres/src
+COPY backend/redis/src ./backend/redis/src
 COPY backend/transport/src ./backend/transport/src
 COPY backend/rawtcp/src ./backend/rawtcp/src
 COPY backend/websocket/src ./backend/websocket/src
