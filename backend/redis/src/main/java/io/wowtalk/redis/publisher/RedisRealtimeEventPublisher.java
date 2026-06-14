@@ -10,6 +10,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 현재 API task에서 발생한 realtime event를 Redis Pub/Sub 채널로 발행한다.
+ *
+ * <p>Redis는 여기서 영속 저장소가 아니라 여러 API task에 WebSocket broadcast를 전달하는 fan-out
+ * 통로로만 사용한다.
+ */
 @Component
 @ConditionalOnProperty(prefix = "wowtalk.realtime", name = "broker", havingValue = "redis")
 public class RedisRealtimeEventPublisher implements RealtimeEventPublisher {

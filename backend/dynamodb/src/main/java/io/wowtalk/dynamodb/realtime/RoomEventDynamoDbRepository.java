@@ -18,6 +18,12 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 
+/**
+ * room event stream을 DynamoDB에 저장하는 adapter 구현체다.
+ *
+ * <p>PK는 room 단위로 묶고, SK는 발생 시각과 eventId로 정렬해 특정 방의 최근 이벤트 조회를
+ * 빠르게 수행한다.
+ */
 @Repository
 @ConditionalOnProperty(prefix = "wowtalk.dynamodb", name = "enabled", havingValue = "true")
 public class RoomEventDynamoDbRepository implements RoomEventRepository {

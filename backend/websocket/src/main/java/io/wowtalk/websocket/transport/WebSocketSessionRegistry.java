@@ -8,6 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+/**
+ * 현재 API task에 붙어 있는 WebSocket 연결만 관리하는 local registry다.
+ *
+ * <p>이 registry는 전체 방 presence나 global session store가 아니다. ECS/Fargate에서 API task가
+ * 여러 개로 늘어나면 서버 간 전파는 Redis Pub/Sub 같은 realtime broker가 담당하고, 각 task는
+ * 자기 JVM에 붙은 socket에만 broadcast한다.
+ */
 @Component
 public class WebSocketSessionRegistry {
 

@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
+/**
+ * WebSocket 연결 URI의 query string을 내부 연결 정보로 변환한다.
+ *
+ * <p>신규 클라이언트는 connectionId/userId/protocolVersion을 명시하지만, legacy 클라이언트는
+ * sessionId만 갖고 들어올 수 있어 호환 경로를 이 클래스에 모아둔다.
+ */
 @Component
 public class WebSocketConnectionResolver {
 

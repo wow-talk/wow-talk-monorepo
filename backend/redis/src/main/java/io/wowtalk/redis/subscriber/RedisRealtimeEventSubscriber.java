@@ -11,6 +11,11 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Redis Pub/Sub으로 들어온 realtime event를 현재 API task의 WebSocket transport로 전달한다.
+ *
+ * <p>다른 API task에서 발행한 이벤트도 이 subscriber를 거쳐 local socket registry에만 broadcast된다.
+ */
 @Component
 @ConditionalOnProperty(prefix = "wowtalk.realtime", name = "broker", havingValue = "redis")
 public class RedisRealtimeEventSubscriber implements MessageListener {

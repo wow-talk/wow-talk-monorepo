@@ -11,6 +11,12 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * core의 TransportMessage를 WebSocket 클라이언트가 이해하는 JSON 메시지로 변환해 전송한다.
+ *
+ * <p>legacy 응답과 protocol v1 envelope를 동시에 지원해 프론트 전환 기간에도 기존 클라이언트를
+ * 깨지 않도록 한다.
+ */
 @Component
 public class WebSocketChatTransport implements ChatTransport {
 

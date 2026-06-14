@@ -7,6 +7,12 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * WebSocket inbound JSON을 내부 채팅 command에 가까운 ParsedInboundChatMessage로 변환한다.
+ *
+ * <p>legacy SEND_MESSAGE와 protocol v1 CHAT_SEND를 함께 해석한다. 파싱 실패는 도메인 예외가 아니라
+ * WebSocket adapter 입력 계약 위반으로 다룬다.
+ */
 @Component
 public class WebSocketInboundMessageParser {
 

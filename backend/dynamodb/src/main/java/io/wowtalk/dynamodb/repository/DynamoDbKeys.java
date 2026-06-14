@@ -5,6 +5,11 @@ import io.wowtalk.message.domain.MessageId;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.user.domain.UserId;
 
+/**
+ * wowtalk-main DynamoDB 테이블의 partition key와 sort key를 생성하는 helper다.
+ *
+ * <p>adapter 바깥으로 DynamoDB key prefix가 새지 않게 하려고 key 조합을 이 클래스에 모은다.
+ */
 public final class DynamoDbKeys {
 
     /*
