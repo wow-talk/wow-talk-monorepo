@@ -22,6 +22,13 @@ class CoreModuleBoundaryTest {
             "io.wowtalk.redis."
     );
 
+    private static final List<String> FORBIDDEN_PACKAGE_PATHS = List.of(
+            "io/wowtalk/dynamodb",
+            "io/wowtalk/postgres",
+            "io/wowtalk/redis",
+            "io/wowtalk/websocket"
+    );
+
     @Test
     void core는_저장소_구현체와_영속성_기술에_의존하지_않는다() throws IOException {
         Path sourceRoot = Path.of("src/main/java");
@@ -39,6 +46,23 @@ class CoreModuleBoundaryTest {
                 .isEmpty();
     }
 
+    @Test
+    void core는_adapter_패키지_이름도_소유하지_않는다() throws IOException {
+        Path sourceRoot = Path.of("src/main/java");
+
+        List<Path> violatingPaths;
+        try (var stream = Files.walk(sourceRoot)) {
+            violatingPaths = stream
+                    .filter(path -> path.toString().endsWith(".java"))
+                    .filter(this::isForbiddenPackagePath)
+                    .toList();
+        }
+
+        assertThat(violatingPaths)
+                .as("backend/core must not own adapter-specific packages")
+                .isEmpty();
+    }
+
     private boolean containsForbiddenImport(Path path) {
         try {
             String source = Files.readString(path);
@@ -46,5 +70,10 @@ class CoreModuleBoundaryTest {
         } catch (IOException exception) {
             throw new IllegalStateException("소스 파일을 읽을 수 없습니다: " + path, exception);
         }
+    }
+
+    private boolean isForbiddenPackagePath(Path path) {
+        String normalizedPath = path.toString().replace('\\', '/');
+        return FORBIDDEN_PACKAGE_PATHS.stream().anyMatch(normalizedPath::contains);
     }
 }

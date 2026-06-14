@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
+/**
+ * Spring container에 등록된 ChatTransport 구현체를 transportMode 기준으로 선택한다.
+ *
+ * <p>Transport 구현 선택은 실행 앱 조합 계층의 책임이며, core service가 WebSocket/Raw TCP 구현체를
+ * 직접 알지 않게 한다.
+ */
 @Component
 public class DefaultTransportRouter implements TransportRouter {
 
