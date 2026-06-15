@@ -36,4 +36,21 @@ class RealtimeOutboundMessageTest {
                 .containsEntry("senderUserId", "user-1")
                 .containsEntry("text", "hello");
     }
+
+    @Test
+    void 에러_이벤트에_요청_ID와_방_ID를_포함한다() {
+        RealtimeOutboundMessage outboundMessage = RealtimeOutboundMessage.error(
+                io.wowtalk.common.error.ErrorCode.INVALID_CHAT_MESSAGE,
+                "req-1",
+                "room-1"
+        );
+
+        assertThat(outboundMessage.version()).isEqualTo(1);
+        assertThat(outboundMessage.type()).isEqualTo(WebSocketMessageType.ERROR.name());
+        assertThat(outboundMessage.requestId()).isEqualTo("req-1");
+        assertThat(outboundMessage.roomId()).isEqualTo("room-1");
+        assertThat(outboundMessage.payload())
+                .containsEntry("code", "INVALID_CHAT_MESSAGE")
+                .containsEntry("message", "메시지 내용이 올바르지 않습니다.");
+    }
 }

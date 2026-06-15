@@ -14,6 +14,7 @@ import io.wowtalk.transport.TransportMode;
 import io.wowtalk.user.domain.User;
 import io.wowtalk.user.domain.UserId;
 import io.wowtalk.user.domain.UserType;
+import io.wowtalk.user.repository.InMemoryAuthIdentityRepository;
 import io.wowtalk.user.repository.InMemoryUserRepository;
 import io.wowtalk.user.service.DefaultUserService;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ import org.junit.jupiter.api.Test;
 class DefaultChatServiceTest {
 
     private final DefaultChannelService channelService = new DefaultChannelService(new InMemoryChannelRepository());
-    private final DefaultUserService userService = new DefaultUserService(new InMemoryUserRepository());
+    private final DefaultUserService userService =
+            new DefaultUserService(new InMemoryUserRepository(), new InMemoryAuthIdentityRepository());
     private final DefaultChatService chatService =
             new DefaultChatService(channelService, new InMemoryChatMessageRepository(), userService);
 

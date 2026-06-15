@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.wowtalk.common.error.WowTalkException;
 import io.wowtalk.user.domain.User;
+import io.wowtalk.user.repository.InMemoryAuthIdentityRepository;
 import io.wowtalk.user.repository.InMemoryUserRepository;
 import io.wowtalk.user.service.DefaultUserService;
 import java.net.URI;
@@ -12,7 +13,8 @@ import org.junit.jupiter.api.Test;
 
 class WebSocketConnectionResolverTest {
 
-    private final DefaultUserService userService = new DefaultUserService(new InMemoryUserRepository());
+    private final DefaultUserService userService =
+            new DefaultUserService(new InMemoryUserRepository(), new InMemoryAuthIdentityRepository());
     private final WebSocketConnectionResolver resolver = new WebSocketConnectionResolver(userService);
 
     @Test

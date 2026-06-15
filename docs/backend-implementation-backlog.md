@@ -71,10 +71,10 @@
 작업:
 
 - [x] `User` 도메인 추가
-- [ ] `AuthIdentity` 도메인 추가
+- [x] `AuthIdentity` 도메인 추가
 - [x] guest user 생성 API 추가
 - [x] displayName 검증 정책 추가
-- [ ] guest -> social account linking을 고려한 구조로 repository 설계
+- [x] guest -> social account linking을 고려한 구조로 repository 설계
 
 프론트 영향:
 
@@ -95,7 +95,7 @@
 - [x] eventId 추가
 - [x] legacy `SEND_MESSAGE`와 v1 `CHAT_SEND` 동시 지원
 - [x] protocolVersion=1 연결에 v1 outbound 응답
-- [ ] error envelope requestId 연동
+- [x] error envelope requestId 연동
 - [x] protocol parsing test 추가
 
 프론트 영향:
@@ -111,11 +111,11 @@
 
 작업:
 
-- [ ] `Room` 도메인 정리
-- [ ] 기존 `Channel`과 `Room` 관계 결정
+- [x] `Room` 도메인 정리
+- [x] 기존 `Channel`과 `Room` 관계 결정
 - [x] `RoomMember` 추가
 - [x] room 입장 API 추가
-- [ ] room 상태 관리 추가
+- [x] room 상태 관리 추가
 
 프론트 영향:
 

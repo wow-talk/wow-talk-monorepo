@@ -32,7 +32,7 @@ erDiagram
 
 - `sessionId`가 발신자 역할까지 겸한다.
 - `messageId`가 외부 계약에 없다.
-- room과 channel 개념이 섞여 있다.
+- room과 channel 개념이 섞여 있다. 이후 구현에서는 Room을 제품 도메인, Channel을 transport metadata로 분리한다.
 - room membership이 없다.
 - 여러 서버 인스턴스에서 connection registry를 공유하지 못한다.
 

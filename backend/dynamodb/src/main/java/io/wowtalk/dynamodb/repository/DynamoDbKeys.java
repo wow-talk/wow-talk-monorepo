@@ -15,6 +15,8 @@ public final class DynamoDbKeys {
     /*
      * 메인 테이블 access pattern:
      * - USER#<userId> / PROFILE: 게스트 또는 인증 사용자 프로필
+     * - AUTH#<provider>#<providerSubject> / IDENTITY: 외부 인증 주체와 내부 user 연결
+     * - ROOM#<roomId> / PROFILE: 방 제품 메타데이터
      * - ROOM#<roomId> / CHANNEL: 방 전송 방식 메타데이터
      * - ROOM#<roomId> / MEMBER#<userId>: 방 참여자 정보
      * - ROOM#<roomId> / MSG#<epochMillis>#<messageId>: 방 메시지 타임라인
@@ -23,10 +25,13 @@ public final class DynamoDbKeys {
     public static final String SK = "sk";
 
     private static final String USER_PREFIX = "USER#";
+    private static final String AUTH_PREFIX = "AUTH#";
     private static final String ROOM_PREFIX = "ROOM#";
     private static final String MEMBER_PREFIX = "MEMBER#";
     static final String MESSAGE_PREFIX = "MSG#";
     private static final String USER_PROFILE_SK = "PROFILE";
+    private static final String AUTH_IDENTITY_SK = "IDENTITY";
+    private static final String ROOM_PROFILE_SK = "PROFILE";
     private static final String CHANNEL_SK = "CHANNEL";
 
     private DynamoDbKeys() {
@@ -40,8 +45,20 @@ public final class DynamoDbKeys {
         return USER_PROFILE_SK;
     }
 
+    static String authIdentityPk(String provider, String providerSubject) {
+        return AUTH_PREFIX + provider + "#" + providerSubject;
+    }
+
+    static String authIdentitySk() {
+        return AUTH_IDENTITY_SK;
+    }
+
     static String roomPk(RoomId roomId) {
         return ROOM_PREFIX + roomId.value();
+    }
+
+    static String roomSk() {
+        return ROOM_PROFILE_SK;
     }
 
     static String channelSk() {

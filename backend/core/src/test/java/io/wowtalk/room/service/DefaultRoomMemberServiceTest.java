@@ -8,8 +8,10 @@ import io.wowtalk.room.domain.RoomMemberRole;
 import io.wowtalk.room.domain.RoomMemberStatus;
 import io.wowtalk.room.dto.RoomMemberInfo;
 import io.wowtalk.room.repository.InMemoryRoomMemberRepository;
+import io.wowtalk.room.repository.InMemoryRoomRepository;
 import io.wowtalk.transport.RoomId;
 import io.wowtalk.user.domain.User;
+import io.wowtalk.user.repository.InMemoryAuthIdentityRepository;
 import io.wowtalk.user.repository.InMemoryUserRepository;
 import io.wowtalk.user.service.DefaultUserService;
 import org.junit.jupiter.api.Test;
@@ -17,9 +19,11 @@ import org.junit.jupiter.api.Test;
 class DefaultRoomMemberServiceTest {
 
     private final DefaultChannelService channelService = new DefaultChannelService(new InMemoryChannelRepository());
-    private final DefaultUserService userService = new DefaultUserService(new InMemoryUserRepository());
+    private final DefaultRoomService roomService = new DefaultRoomService(new InMemoryRoomRepository());
+    private final DefaultUserService userService =
+            new DefaultUserService(new InMemoryUserRepository(), new InMemoryAuthIdentityRepository());
     private final DefaultRoomMemberService roomMemberService =
-            new DefaultRoomMemberService(channelService, userService, new InMemoryRoomMemberRepository());
+            new DefaultRoomMemberService(channelService, roomService, userService, new InMemoryRoomMemberRepository());
 
     @Test
     void 방_참여자를_등록한다() {

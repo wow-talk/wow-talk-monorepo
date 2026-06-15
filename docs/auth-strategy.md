@@ -48,7 +48,9 @@ Content-Type: application/json
 {
   "userId": "guest-1",
   "displayName": "guest",
-  "userType": "GUEST"
+  "userType": "GUEST",
+  "connectionId": "conn-1",
+  "sessionId": "conn-1"
 }
 ```
 
