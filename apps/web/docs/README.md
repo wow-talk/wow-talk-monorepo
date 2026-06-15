@@ -34,6 +34,7 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 ### 00-project-setup
 - [00. 의존성 결정 (2026-05-20)](00-project-setup/00-dependency-decisions.md) — vanilla-extract / TanStack Query / Zustand / Zod / nanoid 5종 선택 근거
 - [02. 환경 변수 단일 진입점 (2026-05-20)](00-project-setup/02-env-and-pnpm.md) — Zod로 parse한 단일 env 객체, NEXT_PUBLIC_ 접두사 동작
+- [03. ESLint 룰 강화 (2026-05-20)](00-project-setup/03-eslint-rules.md) — no-explicit-any / import-order / no-default-export / no-restricted-imports와 라우팅 파일 예외
 
 ### 10-nextjs
 - [01. RSC vs Client Component (2026-05-20)](10-nextjs/01-rsc-vs-client.md) — use client 경계, layout RSC + Provider 분리, use(params) 패턴
@@ -47,12 +48,20 @@ wow-talk front-end 학습 자료 인덱스. 카테고리는 헌법(`../CLAUDE.md
 
 ### 40-websocket
 - [00. WebSocket 라이프사이클 (2026-05-20)](40-websocket/00-ws-lifecycle.md) — readyState 4단계, 이벤트 4종, 정상/비정상 close, 재연결 정책
+- [01. WebSocket 재연결 전략 (2026-05-20)](40-websocket/01-reconnection-strategy.md) — 지수 백오프 5회 정책 실증, inspector 시각화
 - [03. StrictMode 더블 마운트와 WebSocket (2026-05-20)](40-websocket/03-strictmode-double-connect.md) — effect 더블 호출, useRef+dispose 패턴
 
 ### 50-styling
 - [00. vanilla-extract 인트로 (2026-05-20)](50-styling/00-vanilla-extract-intro.md) — createGlobalTheme / globalStyle / 빌드타임 추출 동작
 - [01. 디자인 토큰 매핑표 (2026-05-20)](50-styling/01-design-tokens-mapping.md) — DESIGN.md placeholder → vars 1:1 매핑
+- [02. CSS-in-TS 조건부 클래스 패턴 (2026-05-20)](50-styling/02-css-in-ts-tradeoffs.md) — styleVariants 패턴, 슬라이드 인, 미디어 쿼리
 
 ### 60-state-data
 - [00. TanStack Query 기초 (2026-05-20)](60-state-data/00-tanstack-query-basics.md) — useQuery / useMutation / queryKey / staleTime / v5 isPending 변경점
 - [02. 서버 상태 vs 클라이언트 상태 (2026-05-20)](60-state-data/02-server-state-vs-client-state.md) — 출처별 도구 분리, REST 캐시 + WS 누적 합치는 패턴
+
+### 70-architecture
+- [00. 슬래시 커맨드 흐름 (2026-05-20)](70-architecture/00-slash-command-flow.md) — 입력 → parser → registry → handler → bus → store → UI 전체 데이터 흐름
+
+### 90-decisions
+- [ADR 0004 — 슬래시 커맨드를 inspector 트리거로 채택 (2026-05-20)](90-decisions/0004-slash-command-trigger.md) — 4개 후보 비교, 채택 사유와 트레이드오프

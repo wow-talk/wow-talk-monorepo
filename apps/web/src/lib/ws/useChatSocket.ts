@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { publishInspectorLine } from "@/lib/inspector/bus";
 import { WsClient, type WsStatus } from "@/lib/ws/wsClient";
 import type { ChatMessage } from "@/types/ws";
 
 /**
  * `WsClient`를 React 라이프사이클에 묶는 훅.
  *
- * - effect 안에서 인스턴스 생성/소유 → StrictMode 더블 마운트의 클린업 사고를 막는 패턴.
+ * - effect 안에서 인스턴스 생성/소유 → StrictMode 더블 마운트 클린업 안전.
  * - 외부에 노출하는 것: 현재 status, 누적된 실시간 메시지, lifecycle 로그, send/disconnect.
- * - log는 Phase 2의 inspector에 그대로 연결할 수 있게 미리 설계해둔다.
+ * - log는 컴포넌트 내부용. 동시에 같은 이벤트를 inspectorBus로 fan-out해 inspectorStore에 자동 누적.
  */
 
 export interface UseChatSocketParams {
@@ -53,12 +54,27 @@ export function useChatSocket(
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [log, setLog] = useState<ChatSocketLogEntry[]>([]);
 
-  const appendLog = useCallback((kind: ChatSocketLogKind, detail: string) => {
-    setLog((prev) => [
-      ...prev,
-      { id: makeLogId(), timestamp: Date.now(), kind, detail },
-    ]);
-  }, []);
+  // React 19 권장: props 변경 시 state 리셋을 effect 안의 setState로 하지 않고,
+  // render 중 직전 키와 비교 → 다르면 즉시 setState. React가 render를 즉시 재시작해 일관 상태를 보장.
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  const currentKey = `${enabled ? "on" : "off"}|${roomId}|${sessionId}`;
+  const [prevKey, setPrevKey] = useState(currentKey);
+  if (prevKey !== currentKey) {
+    setPrevKey(currentKey);
+    setLiveMessages([]);
+  }
+
+  const appendLog = useCallback(
+    (kind: ChatSocketLogKind, detail: string) => {
+      setLog((prev) => [
+        ...prev,
+        { id: makeLogId(), timestamp: Date.now(), kind, detail },
+      ]);
+      // 같은 이벤트를 inspector bus로 fan-out. kind는 InspectorLineKind와 호환되는 subset.
+      publishInspectorLine({ kind, text: detail });
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!enabled) return;
@@ -66,7 +82,6 @@ export function useChatSocket(
 
     const client = new WsClient();
     clientRef.current = client;
-    setLiveMessages([]);
 
     const unsubscribe = client.on((event) => {
       if (event.type === "status") {
@@ -104,13 +119,16 @@ export function useChatSocket(
     };
   }, [roomId, sessionId, enabled, appendLog]);
 
-  const send = useCallback((payload: string): boolean => {
-    const client = clientRef.current;
-    if (!client) return false;
-    const ok = client.send({ type: "SEND_MESSAGE", payload });
-    if (ok) appendLog("outgoing", `SEND_MESSAGE ${payload}`);
-    return ok;
-  }, [appendLog]);
+  const send = useCallback(
+    (payload: string): boolean => {
+      const client = clientRef.current;
+      if (!client) return false;
+      const ok = client.send({ type: "SEND_MESSAGE", payload });
+      if (ok) appendLog("outgoing", `SEND_MESSAGE ${payload}`);
+      return ok;
+    },
+    [appendLog],
+  );
 
   const disconnect = useCallback((): void => {
     clientRef.current?.disconnect();

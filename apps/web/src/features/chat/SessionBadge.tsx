@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 import { SessionEditModal } from "@/features/chat/SessionEditModal";
-import { useSessionStore } from "@/stores/sessionStore";
 import type { WsStatus } from "@/lib/ws/wsClient";
+import { useSessionStore } from "@/stores/sessionStore";
 
 import * as styles from "./SessionBadge.css";
 
