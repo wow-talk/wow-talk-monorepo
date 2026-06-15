@@ -14,6 +14,7 @@ import io.wowtalk.transport.SessionId;
 import io.wowtalk.transport.TransportMessage;
 import io.wowtalk.transport.TransportMode;
 import io.wowtalk.user.domain.UserId;
+import io.wowtalk.websocket.error.WebSocketErrorContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -68,19 +69,20 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             registerConnection(session, connectionInfo);
             webSocketChatTransport.sendSystemMessage(session, connectedMessage(connectionInfo));
         } catch (WowTalkException exception) {
-            sendError(session, exception.errorCode());
+            sendError(session, exception.errorCode(), null, null);
             session.close(CloseStatus.BAD_DATA);
         }
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        ParsedInboundChatMessage inboundMessage = null;
         try {
             RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID_ATTRIBUTE);
             ConnectionId connectionId = (ConnectionId) session.getAttributes().get(CONNECTION_ID_ATTRIBUTE);
             SessionId sessionId = (SessionId) session.getAttributes().get(SESSION_ID_ATTRIBUTE);
             UserId userId = (UserId) session.getAttributes().get(USER_ID_ATTRIBUTE);
-            ParsedInboundChatMessage inboundMessage = inboundMessageParser.parseChatMessage(message.getPayload());
+            inboundMessage = inboundMessageParser.parseChatMessage(message.getPayload());
 
             ChatMessageResult result = chatService.send(new SendChatMessageCommand(
                     roomId,
@@ -102,7 +104,12 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                     ).withRequestId(inboundMessage.requestId())
             );
         } catch (WowTalkException exception) {
-            sendError(session, exception.errorCode());
+            sendError(
+                    session,
+                    exception.errorCode(),
+                    resolveRequestId(exception, inboundMessage),
+                    resolveRoomId(session, exception, inboundMessage)
+            );
         }
     }
 
@@ -136,13 +143,34 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         );
     }
 
-    private void sendError(WebSocketSession session, ErrorCode errorCode) {
+    private void sendError(WebSocketSession session, ErrorCode errorCode, String requestId, String roomId) {
         if (session.isOpen()) {
             if (webSocketChatTransport.usesProtocolV1(session)) {
-                webSocketChatTransport.sendSystemMessage(session, RealtimeOutboundMessage.error(errorCode));
+                webSocketChatTransport.sendSystemMessage(session, RealtimeOutboundMessage.error(errorCode, requestId, roomId));
                 return;
             }
             webSocketChatTransport.sendSystemMessage(session, WebSocketOutboundMessage.error(errorCode));
         }
+    }
+
+    private String resolveRequestId(WowTalkException exception, ParsedInboundChatMessage inboundMessage) {
+        if (inboundMessage != null && inboundMessage.requestId() != null) {
+            return inboundMessage.requestId();
+        }
+        if (exception instanceof WebSocketErrorContext context) {
+            return context.requestId();
+        }
+        return null;
+    }
+
+    private String resolveRoomId(WebSocketSession session, WowTalkException exception, ParsedInboundChatMessage inboundMessage) {
+        if (inboundMessage != null && inboundMessage.roomId() != null) {
+            return inboundMessage.roomId();
+        }
+        if (exception instanceof WebSocketErrorContext context && context.roomId() != null) {
+            return context.roomId();
+        }
+        RoomId roomId = (RoomId) session.getAttributes().get(ROOM_ID_ATTRIBUTE);
+        return roomId == null ? null : roomId.value();
     }
 }

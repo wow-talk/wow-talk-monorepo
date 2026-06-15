@@ -47,6 +47,13 @@ POST /api/v1/guests
 POST /api/v1/rooms/{roomId}/members
 ```
 
+방 생성/조회:
+
+```http
+POST /api/v1/rooms
+GET /api/v1/rooms/{roomId}
+```
+
 ### WebSocket
 
 연결:
@@ -96,11 +103,6 @@ ws://localhost:8080/ws/chat?roomId={roomId}&connectionId={connectionId}&sessionI
 ```txt
 messageId
 senderUserId
-```
-
-추가 예정:
-
-```txt
 connectionId
 ```
 
@@ -120,7 +122,9 @@ POST /api/v1/guests
 {
   "userId": "guest-1",
   "displayName": "guest",
-  "userType": "GUEST"
+  "userType": "GUEST",
+  "connectionId": "conn-1",
+  "sessionId": "conn-1"
 }
 ```
 
@@ -133,9 +137,13 @@ connectionId
 sessionId
 ```
 
+`sessionId`는 legacy WebSocket 호환 필드이며, 신규 프론트는 `connectionId`와 같은 값으로 보관해도 된다.
+
 ### Step 2-1. Room member join 추가
 
 프론트는 WebSocket 연결 전에 방 참여 API를 호출한다.
+
+방은 제품 도메인의 상위 모델이고, Channel은 해당 방의 transport metadata로 유지한다.
 
 ```http
 POST /api/v1/rooms/lobby/members
@@ -169,23 +177,10 @@ roomId + sessionId
 목표:
 
 ```txt
-roomId + connectionId + userId + protocolVersion
+roomId + connectionId + sessionId + userId + protocolVersion
 ```
 
-그리고 WebSocket 연결 후 `HELLO`를 보낸다.
-
-```json
-{
-  "version": 1,
-  "type": "HELLO",
-  "requestId": "req-1",
-  "roomId": "lobby",
-  "payload": {
-    "userId": "guest-1",
-    "displayName": "guest"
-  }
-}
-```
+현재 구현은 연결 쿼리 파라미터로 identity와 protocol version을 전달한다. `HELLO` command는 아직 구현하지 않았으므로 신규 프론트는 `protocolVersion=1` 연결 후 바로 `CHAT_SEND`를 보낸다.
 
 ### Step 4. Protocol envelope 전환
 
@@ -266,9 +261,9 @@ ERROR -> 에러 토스트 또는 시스템 메시지
 
 ## 프론트에 먼저 공유할 것
 
-1. guest user API가 생길 예정
+1. guest user API가 있다
 2. `sessionId`는 장기적으로 `connectionId`가 된다
 3. user identity는 `userId`로 분리된다
 4. 메시지는 `messageId`와 `senderUserId`를 가진다
-5. WebSocket payload는 envelope v1으로 바뀔 예정이다
+5. WebSocket payload는 envelope v1을 지원한다
 6. 게임 이벤트는 채팅 stream 위에 같이 내려올 수 있다

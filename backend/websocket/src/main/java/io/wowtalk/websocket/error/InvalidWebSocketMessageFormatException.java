@@ -9,9 +9,28 @@ import io.wowtalk.common.error.WowTalkException;
  * <p>이 예외는 WebSocket adapter 내부의 프로토콜 파싱 실패를 표현한다. core 도메인 규칙이 아니라
  * transport 구현체의 입력 변환 실패이므로 websocket 모듈에 둔다.
  */
-public class InvalidWebSocketMessageFormatException extends WowTalkException {
+public class InvalidWebSocketMessageFormatException extends WowTalkException implements WebSocketErrorContext {
+
+    private final String requestId;
+    private final String roomId;
 
     public InvalidWebSocketMessageFormatException() {
+        this(null, null);
+    }
+
+    public InvalidWebSocketMessageFormatException(String requestId, String roomId) {
         super(ErrorCode.INVALID_WEBSOCKET_MESSAGE_FORMAT);
+        this.requestId = requestId;
+        this.roomId = roomId;
+    }
+
+    @Override
+    public String requestId() {
+        return requestId;
+    }
+
+    @Override
+    public String roomId() {
+        return roomId;
     }
 }

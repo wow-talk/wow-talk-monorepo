@@ -1,7 +1,7 @@
 package io.wowtalk.websocket.transport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import io.wowtalk.websocket.error.InvalidWebSocketMessageFormatException;
 import io.wowtalk.websocket.error.UnsupportedWebSocketMessageTypeException;
@@ -22,6 +22,7 @@ class WebSocketInboundMessageParserTest {
                 """);
 
         assertThat(message.requestId()).isNull();
+        assertThat(message.roomId()).isNull();
         assertThat(message.payload()).isEqualTo("안녕하세요");
     }
 
@@ -40,12 +41,15 @@ class WebSocketInboundMessageParserTest {
                 """);
 
         assertThat(message.requestId()).isEqualTo("req-1");
+        assertThat(message.roomId()).isEqualTo("lobby");
         assertThat(message.payload()).isEqualTo("안녕하세요");
     }
 
     @Test
     void 지원하지_않는_v1_타입은_예외가_발생한다() {
-        assertThatThrownBy(() -> parser.parseChatMessage("""
+        UnsupportedWebSocketMessageTypeException exception = catchThrowableOfType(
+                UnsupportedWebSocketMessageTypeException.class,
+                () -> parser.parseChatMessage("""
                 {
                   "version": 1,
                   "type": "PING",
@@ -53,12 +57,18 @@ class WebSocketInboundMessageParserTest {
                   "roomId": "lobby",
                   "payload": {}
                 }
-                """)).isInstanceOf(UnsupportedWebSocketMessageTypeException.class);
+                """)
+        );
+
+        assertThat(exception.requestId()).isEqualTo("req-1");
+        assertThat(exception.roomId()).isEqualTo("lobby");
     }
 
     @Test
     void v1_채팅_payload에_text가_없으면_예외가_발생한다() {
-        assertThatThrownBy(() -> parser.parseChatMessage("""
+        InvalidWebSocketMessageFormatException exception = catchThrowableOfType(
+                InvalidWebSocketMessageFormatException.class,
+                () -> parser.parseChatMessage("""
                 {
                   "version": 1,
                   "type": "CHAT_SEND",
@@ -66,6 +76,10 @@ class WebSocketInboundMessageParserTest {
                   "roomId": "lobby",
                   "payload": {}
                 }
-                """)).isInstanceOf(InvalidWebSocketMessageFormatException.class);
+                """)
+        );
+
+        assertThat(exception.requestId()).isEqualTo("req-1");
+        assertThat(exception.roomId()).isEqualTo("lobby");
     }
 }

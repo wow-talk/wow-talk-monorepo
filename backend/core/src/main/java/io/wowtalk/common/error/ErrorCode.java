@@ -1,6 +1,7 @@
 package io.wowtalk.common.error;
 
 public enum ErrorCode {
+    ROOM_NOT_FOUND("방을 찾을 수 없습니다."),
     CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
     VALIDATION_FAILED("요청 값이 올바르지 않습니다."),

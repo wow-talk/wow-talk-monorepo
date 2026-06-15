@@ -51,12 +51,16 @@ public record RealtimeOutboundMessage(
     }
 
     public static RealtimeOutboundMessage error(ErrorCode errorCode) {
+        return error(errorCode, null, null);
+    }
+
+    public static RealtimeOutboundMessage error(ErrorCode errorCode, String requestId, String roomId) {
         return new RealtimeOutboundMessage(
                 1,
                 WebSocketMessageType.ERROR.name(),
                 newEventId(),
-                null,
-                null,
+                requestId,
+                roomId,
                 Instant.now().toString(),
                 Map.of(
                         "code", errorCode.name(),

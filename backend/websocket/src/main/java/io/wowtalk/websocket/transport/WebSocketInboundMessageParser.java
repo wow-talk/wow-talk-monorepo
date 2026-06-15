@@ -50,26 +50,32 @@ public class WebSocketInboundMessageParser {
         if (!(payload instanceof String text)) {
             throw new InvalidWebSocketMessageFormatException();
         }
-        return new ParsedInboundChatMessage(null, text);
+        return new ParsedInboundChatMessage(null, null, text);
     }
 
     private ParsedInboundChatMessage parseEnvelope(String typeName, Object version, Map<String, Object> message) {
+        String requestId = stringValue(message.get("requestId"));
+        String roomId = stringValue(message.get("roomId"));
+
         if (!(version instanceof Number protocolVersion) || protocolVersion.intValue() != 1) {
-            throw new UnsupportedWebSocketMessageTypeException();
+            throw new UnsupportedWebSocketMessageTypeException(requestId, roomId);
         }
         if (WebSocketMessageType.valueOf(typeName) != WebSocketMessageType.CHAT_SEND) {
-            throw new UnsupportedWebSocketMessageTypeException();
+            throw new UnsupportedWebSocketMessageTypeException(requestId, roomId);
         }
         Object payload = message.get("payload");
         if (!(payload instanceof Map<?, ?> payloadMap)) {
-            throw new InvalidWebSocketMessageFormatException();
+            throw new InvalidWebSocketMessageFormatException(requestId, roomId);
         }
 
         Object text = payloadMap.get("text");
         if (!(text instanceof String messageText)) {
-            throw new InvalidWebSocketMessageFormatException();
+            throw new InvalidWebSocketMessageFormatException(requestId, roomId);
         }
-        Object requestId = message.get("requestId");
-        return new ParsedInboundChatMessage(requestId instanceof String value ? value : null, messageText);
+        return new ParsedInboundChatMessage(requestId, roomId, messageText);
+    }
+
+    private String stringValue(Object value) {
+        return value instanceof String stringValue ? stringValue : null;
     }
 }

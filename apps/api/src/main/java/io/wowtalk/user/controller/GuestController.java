@@ -2,6 +2,7 @@ package io.wowtalk.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.wowtalk.transport.ConnectionId;
 import io.wowtalk.user.domain.User;
 import io.wowtalk.user.service.UserService;
 import jakarta.validation.Valid;
@@ -41,13 +42,18 @@ public class GuestController {
     public record GuestResponse(
             String userId,
             String userType,
-            String displayName
+            String displayName,
+            String connectionId,
+            String sessionId
     ) {
         private static GuestResponse from(User user) {
+            ConnectionId connectionId = ConnectionId.newId();
             return new GuestResponse(
                     user.userId().value(),
                     user.userType().name(),
-                    user.displayName()
+                    user.displayName(),
+                    connectionId.value(),
+                    connectionId.value()
             );
         }
     }

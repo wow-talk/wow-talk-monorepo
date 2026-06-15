@@ -109,6 +109,25 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 }
 ```
 
+### v1 에러
+
+가능한 경우 서버는 실패한 요청의 `requestId`와 `roomId`를 ERROR envelope에 포함한다.
+
+```json
+{
+  "version": 1,
+  "type": "ERROR",
+  "eventId": "evt-error-1",
+  "requestId": "req-1",
+  "roomId": "room-1",
+  "occurredAt": "2026-05-24T00:00:01Z",
+  "payload": {
+    "code": "INVALID_CHAT_MESSAGE",
+    "message": "메시지 내용이 올바르지 않습니다."
+  }
+}
+```
+
 ### Legacy 연결 성공
 ```json
 {
@@ -163,6 +182,7 @@ ws://localhost:8080/ws/chat?roomId=room-1&connectionId=conn-1&sessionId=conn-1&u
 - `UNSUPPORTED_MESSAGE_TYPE`
 - `INVALID_CHAT_MESSAGE`
 - `CHANNEL_NOT_FOUND`
+- `ROOM_NOT_FOUND`
 - `USER_NOT_FOUND`
 - `TRANSPORT_MODE_MISMATCH`
 

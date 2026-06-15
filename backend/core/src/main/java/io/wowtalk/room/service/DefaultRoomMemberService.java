@@ -14,21 +14,25 @@ import org.springframework.stereotype.Service;
 public class DefaultRoomMemberService implements RoomMemberService {
 
     private final ChannelService channelService;
+    private final RoomService roomService;
     private final UserService userService;
     private final RoomMemberRepository roomMemberRepository;
 
     public DefaultRoomMemberService(
             ChannelService channelService,
+            RoomService roomService,
             UserService userService,
             RoomMemberRepository roomMemberRepository
     ) {
         this.channelService = channelService;
+        this.roomService = roomService;
         this.userService = userService;
         this.roomMemberRepository = roomMemberRepository;
     }
 
     @Override
     public RoomMemberInfo join(RoomId roomId, UserId userId) {
+        roomService.ensureRoom(roomId);
         channelService.ensureChannel(roomId, TransportMode.WEBSOCKET);
         userService.get(userId);
 
